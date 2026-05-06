@@ -18,7 +18,7 @@ class InMemoryContext:
         return False
 
     def messages(self) -> list[dict[str, Any]]:
-        return self._messages
+        return self._messages.copy()
 
     def add_user_message(self, content: str) -> None:
         self._messages.append({"role": "user", "content": content})
