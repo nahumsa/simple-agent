@@ -106,7 +106,7 @@ class SimpleAgentLoop:
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         for tool_call, result in zip(tool_calls, results):
-            if isinstance(result, Exception):
+            if isinstance(result, BaseException):
                 output = str(result)
                 success = False
             else:
