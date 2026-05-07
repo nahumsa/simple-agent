@@ -10,8 +10,10 @@ from agent.types import LLMResult
 class InMemoryContext:
     """Small in-memory conversation store for the CLI."""
 
-    def __init__(self) -> None:
+    def __init__(self, system_prompt: str | None = None) -> None:
         self._messages: list[dict[str, Any]] = []
+        if system_prompt:
+            self._messages.append({"role": "system", "content": system_prompt})
 
     @property
     def needs_compaction(self) -> bool:
@@ -61,9 +63,9 @@ class InMemoryContext:
         )
 
     def undo_last_turn(self) -> None:
-        while self._messages and self._messages[-1].get("role") != "user":
+        while self._messages and self._messages[-1].get("role") not in {"system", "user"}:
             self._messages.pop()
-        if self._messages:
+        if self._messages and self._messages[-1].get("role") == "user":
             self._messages.pop()
 
     async def compact(self) -> None:

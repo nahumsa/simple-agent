@@ -18,6 +18,8 @@ LLM_MODEL_ENV = "LLM_MODEL"
 LLM_BASE_URL_ENV = "LLM_BASE_URL"
 LLM_API_KEY_ENV = "LLM_API_KEY"
 LLM_REQUEST_TIMEOUT_SECONDS_ENV = "LLM_REQUEST_TIMEOUT_SECONDS"
+SYSTEM_PROMPT_FILE_ENV = "SYSTEM_PROMPT_FILE"
+DEFAULT_SYSTEM_PROMPT_FILE = "prompts/system_prompt.md"
 DEFAULT_MAX_ITERATIONS = 8
 DEFAULT_REQUEST_TIMEOUT_SECONDS = 60
 
@@ -63,6 +65,7 @@ class AgentConfig:
     """Configuration for agent-loop behavior."""
 
     max_iterations: int = DEFAULT_MAX_ITERATIONS
+    system_prompt: str | None = None
 
 
 @dataclass(frozen=True)

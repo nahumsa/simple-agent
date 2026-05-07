@@ -14,10 +14,10 @@ class CliSession:
     """Minimal session object expected by SimpleAgentLoop."""
 
     def __init__(self, llm: Any, config: AgentConfig | None = None) -> None:
-        self.context = InMemoryContext()
+        self.config = config or AgentConfig()
+        self.context = InMemoryContext(system_prompt=self.config.system_prompt)
         self.tools = NoTools()
         self.llm = llm
-        self.config = config or AgentConfig()
         self.running = True
         self.cancelled = False
         self.pending_approval: list[ToolCall] | None = None

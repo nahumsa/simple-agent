@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import os
+from pathlib import Path
 
 from agent.config import (
     AgentConfig,
@@ -12,6 +14,7 @@ from agent.config import (
     DEFAULT_MAX_ITERATIONS,
     DEFAULT_MODEL,
     DEFAULT_PROVIDER,
+    DEFAULT_SYSTEM_PROMPT_FILE,
     LLM_API_KEY_ENV,
     LLM_BASE_URL_ENV,
     LLM_MODEL_ENV,
@@ -20,10 +23,29 @@ from agent.config import (
     LLMConfig,
     OPENAI_API_KEY_ENV,
     PROVIDER_CHOICES,
+    SYSTEM_PROMPT_FILE_ENV,
 )
 from agent.llms import build_llm
 from agent.loop import SimpleAgentLoop
 from agent.session import CliSession
+
+
+def read_system_prompt(path: str | None) -> str | None:
+    """Read a system prompt from a markdown file, if one is configured."""
+    configured_path = path or os.getenv(SYSTEM_PROMPT_FILE_ENV)
+    if not configured_path:
+        default_path = Path(DEFAULT_SYSTEM_PROMPT_FILE)
+        if not default_path.exists():
+            return None
+        configured_path = DEFAULT_SYSTEM_PROMPT_FILE
+
+    prompt_path = Path(configured_path)
+    try:
+        prompt = prompt_path.read_text(encoding="utf-8").strip()
+    except FileNotFoundError as exc:
+        raise ValueError(f"System prompt file not found: {prompt_path}") from exc
+
+    return prompt or None
 
 
 def config_from_args(args: argparse.Namespace) -> AppConfig:
@@ -36,7 +58,10 @@ def config_from_args(args: argparse.Namespace) -> AppConfig:
             base_url=args.base_url or env_llm.base_url,
             request_timeout_seconds=args.request_timeout_seconds or env_llm.request_timeout_seconds,
         ),
-        agent=AgentConfig(max_iterations=args.max_iterations),
+        agent=AgentConfig(
+            max_iterations=args.max_iterations,
+            system_prompt=read_system_prompt(args.system_prompt_file),
+        ),
     )
 
 
@@ -99,6 +124,14 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=DEFAULT_MAX_ITERATIONS,
         help="Maximum LLM/tool iterations per turn.",
+    )
+    parser.add_argument(
+        "--system-prompt-file",
+        default=None,
+        help=(
+            "Markdown file containing the system prompt. Defaults to "
+            f"${SYSTEM_PROMPT_FILE_ENV} or {DEFAULT_SYSTEM_PROMPT_FILE} if it exists."
+        ),
     )
     return parser.parse_args()
 
