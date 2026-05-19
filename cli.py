@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import logging
 import os
 from pathlib import Path
 
@@ -28,6 +29,7 @@ from agent.config import (
 from agent.llms import build_llm
 from agent.loop import SimpleAgentLoop
 from agent.session import CliSession
+from agent.tools import ChallengeDataTools
 
 
 def read_system_prompt(path: str | None) -> str | None:
@@ -65,9 +67,19 @@ def config_from_args(args: argparse.Namespace) -> AppConfig:
     )
 
 
+def agent_config_with_challenge_context(config: AgentConfig, tools: ChallengeDataTools) -> AgentConfig:
+    """Append the extracted challenge index to the system prompt when available."""
+    parts = [part for part in [config.system_prompt, tools.initial_context()] if part]
+    if not parts:
+        return config
+    return AgentConfig(max_iterations=config.max_iterations, system_prompt="\n\n".join(parts))
+
+
 async def chat(args: argparse.Namespace) -> None:
     config = config_from_args(args)
-    agent = SimpleAgentLoop(CliSession(build_llm(config.llm), config.agent))
+    tools = ChallengeDataTools()
+    agent_config = agent_config_with_challenge_context(config.agent, tools)
+    agent = SimpleAgentLoop(CliSession(build_llm(config.llm), agent_config, tools=tools))
     print(f"Chat started with {config.llm.provider}:{config.llm.model}. Type /exit or /quit to stop.")
 
     while True:
@@ -136,5 +148,15 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def configure_logging() -> None:
+    """Enable debug logging when DEBUG=True is set in the environment."""
+    debug_enabled = os.getenv("DEBUG", "").casefold() in {"1", "true", "yes", "on"}
+    logging.basicConfig(
+        level=logging.DEBUG if debug_enabled else logging.WARNING,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
+
+
 def main() -> None:
+    configure_logging()
     asyncio.run(chat(parse_args()))

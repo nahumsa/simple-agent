@@ -13,10 +13,10 @@ from agent.types import ToolCall
 class CliSession:
     """Minimal session object expected by SimpleAgentLoop."""
 
-    def __init__(self, llm: Any, config: AgentConfig | None = None) -> None:
+    def __init__(self, llm: Any, config: AgentConfig | None = None, tools: Any | None = None) -> None:
         self.config = config or AgentConfig()
+        self.tools = tools or NoTools()
         self.context = InMemoryContext(system_prompt=self.config.system_prompt)
-        self.tools = NoTools()
         self.llm = llm
         self.running = True
         self.cancelled = False

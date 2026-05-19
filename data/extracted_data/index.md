@@ -1,0 +1,111 @@
+# Coding Challenges
+
+- [Build Your Own wc Tool](001-challenge-wc.md) (beginner) — Create your own version of the Unix wc (word count) utility. Count bytes, lines, words, and characters in files.
+- [Build Your Own JSON Parser](002-challenge-json-parser.md) (intermediate) — Build a JSON parser from scratch, learning the fundamentals of lexical analysis and syntactic parsing that underpin compilers and data format processors.
+- [Build Your Own Compression Tool](003-challenge-huffman.md) (intermediate) — Build a compression tool using Huffman coding to compress and decompress files.
+- [Build Your Own cut Tool](004-challenge-cut.md) (beginner) — Build your own version of the Unix cut command for extracting sections from lines of files.
+- [Build Your Own Load Balancer](005-challenge-load-balancer.md) (intermediate) — Build a Layer 7 HTTP load balancer that distributes requests across backend servers using round-robin scheduling with health checks.
+- [Build Your Own Sort Tool](006-challenge-sort.md) (beginner) — Create your own version of the Unix sort utility, implementing various sorting algorithms and options.
+- [Build Your Own Calculator](007-challenge-calculator.md) (beginner) — Build a calculator that can parse and evaluate mathematical expressions.
+- [Build Your Own Redis Server](008-challenge-redis.md) (intermediate) — Build a lightweight Redis clone - an in-memory data structure server supporting strings, hashes, lists, sets, and sorted sets. Implement the RESP protocol and handle concurrent clients.
+- [Build Your Own grep](009-challenge-grep.md) (advanced) — Build your own version of grep, the powerful pattern-matching command-line tool.
+- [Build Your Own uniq Tool](010-challenge-uniq.md) (beginner) — Build your own version of the Unix uniq tool for filtering and counting duplicate lines.
+- [Build Your Own Web Server](011-challenge-webserver.md) (intermediate) — Build an HTTP web server from scratch that serves files, handles concurrent connections, and includes security measures against directory traversal attacks.
+- [Build Your Own URL Shortener](012-challenge-url-shortener.md) (beginner) — Build a URL shortening service like Bitly or TinyURL with a REST API, redirect handling, and optional web frontend.
+- [Build Your Own diff Tool](013-challenge-diff.md) (intermediate) — Build your own version of the diff utility to compare files and show differences.
+- [Build Your Own Shell](014-challenge-shell.md) (intermediate) — Build a functional command-line shell with command execution, pipes, built-in commands, signal handling, and command history.
+- [Build Your Own cat Tool](015-challenge-cat.md) (beginner) — Build your own version of the Unix cat command for concatenating and displaying files.
+- [Build Your Own IRC Client](016-challenge-irc.md) (intermediate) — Build an IRC client that can connect to IRC servers, join channels, and send and receive messages.
+- [Build Your Own Memcached Server](017-challenge-memcached.md) (intermediate) — Build a Memcached server - a high-performance distributed memory caching system.
+- [Build Your Own Spotify Client](018-challenge-spotify.md) (beginner) — Build a Spotify client that interacts with the Spotify API to browse and play music.
+- [Build Your Own Discord Bot](019-challenge-discord.md) (beginner) — Build a Discord bot that responds to commands and interacts with users in a Discord server.
+- [Build Your Own LinkedIn Carousel Generator](020-challenge-licq.md) (intermediate) — Build a tool to generate LinkedIn carousel posts from text content.
+- [Build Your Own Sed](021-challenge-sed.md) (beginner) — Build your own version of the Unix stream editor sed for text transformation.
+- [Build Your Own DNS Resolver](022-challenge-dns-resolver.md) (intermediate) — Build a DNS resolver that translates domain names into IP addresses by implementing the DNS protocol, crafting UDP packets, and performing recursive resolution.
+- [Build Your Own Traceroute](023-challenge-traceroute.md) (intermediate) — Build your own version of the traceroute network diagnostic tool.
+- [Build Your Own Realtime Chat Client and Server](024-challenge-realtime-chat.md) (beginner) — Build a real-time chat application with both client and server components.
+- [Build Your Own NATS Message Broker](025-challenge-nats.md) (intermediate) — Build a message-oriented middleware server modelled after NATS with pub/sub messaging, protocol parsing, and concurrent client support.
+- [Build Your Own Git](026-challenge-git.md) (advanced) — Build a functional git client from scratch supporting repository initialisation, staging, commits, diffs, and pushing to remote repositories.
+- [Build Your Own Rate Limiter](027-challenge-rate-limiter.md) (intermediate) — Build a rate limiter to control the rate of requests to an API or service.
+- [Build Your Own NTP Client](028-challenge-ntp.md) (intermediate) — Build a Network Time Protocol client to synchronise time with NTP servers.
+- [Build Your Own Scheduling Automation App](029-challenge-scheduler.md) (intermediate) — Build an app that automates scheduling using calendar APIs.
+- [Build Your Own Lisp Interpreter](030-challenge-lisp.md) (intermediate) — Build a Lisp interpreter from scratch with tokenisation, AST construction, evaluation, a REPL, and script execution.
+- [Build Your Own QR Code Generator](031-challenge-qr-generator.md) (advanced) — Build a QR code generator that encodes data into QR code images.
+- [Build Your Own Crontab Tool](032-challenge-cron.md) (intermediate) — Build your own version of the crontab scheduling utility.
+- [Build Your Own head](033-challenge-head.md) (beginner) — Build your own version of the Unix head command to display the first lines of a file.
+- [Build Your Own jq](034-challenge-jq.md) (intermediate) — Build your own version of jq, the lightweight command-line JSON processor.
+- [Build Your Own Google Keep](035-challenge-keep.md) (intermediate) — Build a note-taking application similar to Google Keep.
+- [Build Your Own Pong](036-challenge-pong.md) (beginner) — Build the classic Pong game with paddle controls, ball physics, and scoring.
+- [Build Your Own Redis CLI Tool](037-challenge-redis-cli.md) (intermediate) — Build a command-line client for interacting with Redis servers.
+- [Build Your Own Network Modelling Tool](038-challenge-network-modeller.md) (intermediate) — Build a tool for modelling and visualising computer networks.
+- [Build Your Own Social Media Tool](039-challenge-sm-tool.md) (advanced) — Build a social media platform with user profiles, posts, and feeds.
+- [Build Your Own curl](040-challenge-curl.md) (intermediate) — Build your own version of the curl command-line tool for making HTTP requests.
+- [Build Your Own HTTP(S) Load Tester](041-challenge-load-tester.md) (intermediate) — Build a tool for load testing HTTP servers with concurrent requests and performance metrics.
+- [Build Your Own tr Tool](042-challenge-tr.md) (intermediate) — Build your own version of the Unix tr command for translating or deleting characters.
+- [Build Your Own Tetris](043-challenge-tetris.md) (beginner) — Build the classic Tetris game with piece rotation, line clearing, scoring, and increasing difficulty.
+- [Build Your Own DNS Forwarder](044-challenge-dns-forwarder.md) (intermediate) — Build a DNS forwarder that receives DNS queries and forwards them to upstream DNS servers.
+- [Build Your Own Port Scanner](045-challenge-port-scanner.md) (intermediate) — Build a port scanner to discover open ports on network hosts.
+- [Build Your Own yq](046-challenge-yq.md) (intermediate) — Build your own version of yq, the command-line YAML processor.
+- [Build Your Own Chrome Extension](047-challenge-chrome-extension.md) (beginner) — Build a Chrome browser extension with popup UI and background functionality.
+- [Build Your Own Data Privacy Vault](048-challenge-data-privacy-vault.md) (intermediate) — Build a data privacy vault for securely storing and tokenising sensitive data.
+- [Build Your Own Password Cracker](049-challenge-password-cracker.md) (beginner) — Build a password cracker that uses dictionary and brute-force attacks to crack hashed passwords.
+- [Build Your Own Xargs](050-challenge-xargs.md) (intermediate) — Build your own version of the Unix xargs command for building and executing commands from standard input.
+- [Build Your Own HTTP Forward Proxy Server](051-challenge-forward-proxy.md) (intermediate) — Build an HTTP forward proxy server that forwards client requests to destination servers.
+- [Build Your Own Docker](052-challenge-docker.md) (intermediate) — Build a lightweight Docker clone that uses Linux namespaces, cgroups, and chroot to create isolated containers. Pull and run images from Docker Hub.
+- [Build Your Own Spell Checker Using A Bloom Filter](053-challenge-bloom.md) (beginner) — Build a spell checker using a Bloom filter, a probabilistic data structure for fast set membership testing.
+- [Build Your Own Tar](054-challenge-tar.md) (beginner) — Build your own version of the Unix tar archiving utility.
+- [Build Your Own Xxd](055-challenge-xxd.md) (beginner) — Build your own version of the xxd hex dump utility.
+- [Build Your Own Chess Game](056-challenge-chess.md) (intermediate) — Build a chess game with move validation, check detection, and a playable interface.
+- [Build Your Own Snake Game](057-challenge-snake.md) (beginner) — Build the classic Snake game with growing tail, food spawning, and collision detection.
+- [Build Your Own Password Manager](058-challenge-password-manager.md) (intermediate) — Build a password manager that securely stores and retrieves encrypted credentials.
+- [Build Your Own Netcat](059-challenge-netcat.md) (intermediate) — Build your own version of netcat, the networking utility for reading and writing across network connections.
+- [Build Your Own Pastebin](060-challenge-pastebin.md) (beginner) — Build a pastebin service for sharing text snippets with unique URLs.
+- [Build Your Own Dropbox](061-challenge-dropbox.md) (intermediate) — Build a file synchronisation service similar to Dropbox.
+- [Build Your Own Git Contributions Visualisation Tool](062-challenge-contrib-vis.md) (beginner) — Build a tool that visualises git contribution history as a heatmap.
+- [Build Your Own Space Invaders](063-challenge-space-invaders.md) (beginner) — Build the classic Space Invaders arcade game.
+- [Build Your Own Spotify Playlist Backup Service](064-challenge-spotify-backup.md) (beginner) — Build a service that backs up Spotify playlists using the Spotify API.
+- [Build Your Own Minesweeper](065-challenge-minesweeper.md) (beginner) — Build the classic Minesweeper game with mine placement, number calculation, and recursive reveals.
+- [Build Your Own Zip File Cracker](066-challenge-zip-cracker.md) (beginner) — Build a tool to crack password-protected zip files using dictionary and brute-force attacks.
+- [Build Your Own YAML Parser](067-challenge-yaml.md) (intermediate) — Build a YAML parser that can parse YAML documents into data structures.
+- [Build Your Own Blogging Software](068-challenge-blog.md) (intermediate) — Build blogging software with post creation, editing, and publishing.
+- [Build Your Own Notion](069-challenge-notion.md) (intermediate) — Build a productivity tool similar to Notion with pages, blocks, and rich text editing.
+- [Build Your Own Memcached CLI Tool](070-challenge-memcached-client.md) (beginner) — Build a command-line client for interacting with Memcached servers.
+- [Build Your Own Wheel of Names](071-challenge-wheel.md) (beginner) — Build an interactive spinning wheel for randomly selecting names.
+- [Build Your Own Sudoku](072-challenge-sudoku.md) (beginner) — Build a Sudoku game with puzzle generation, validation, and solving.
+- [Build Your Own Text Editor](073-challenge-text-editor.md) (intermediate) — Build a terminal-based text editor with file editing, cursor movement, syntax highlighting, and search.
+- [Build Your Own Asteroids](074-challenge-asteroids.md) (beginner) — Build the classic Asteroids arcade game with vector graphics and physics.
+- [Build Your Own Duplicate File Finder](075-challenge-duplicate-files.md) (intermediate) — Build a tool to find duplicate files by comparing file contents using hashing.
+- [Build Your Own Video Chat Application](076-challenge-video-chat.md) (intermediate) — Build a video chat application using WebRTC for peer-to-peer video communication.
+- [Build Your Own Static Site Generator](077-challenge-ssg.md) (beginner) — Build a static site generator that converts Markdown files into a complete HTML website.
+- [Build Your Own Uptime Monitoring Service](078-challenge-uptime-monitoring.md) (intermediate) — Build a service that monitors website uptime and sends alerts when sites go down.
+- [Build Your Own Socat](079-challenge-socat.md) (intermediate) — Build your own version of socat, the multipurpose relay tool for bidirectional data transfer.
+- [Build Your Own Optical Character Recognition](080-challenge-ocr.md) (advanced) — Build an OCR system that can extract text from images.
+- [Build Your Own Brainfuck Interpreter](081-challenge-brainfuck.md) (intermediate) — Build an interpreter for the Brainfuck esoteric programming language.
+- [Build Your Own Markdown To PDF Editor](082-challenge-md-to-pdf.md) (beginner) — Build an editor that converts Markdown to PDF documents.
+- [Build Your Own Markdown Presentation Tool](083-challenge-md-to-slides.md) (intermediate) — Build a tool that converts Markdown files into slide presentations.
+- [Build Your Own Mandelbrot Set Explorer](084-challenge-mandelbrot.md) (intermediate) — Build an interactive Mandelbrot set visualiser with zoom and pan capabilities.
+- [Build Your Own Time Zone Converter](085-timezone-converter.md) (beginner) — Build a time zone conversion tool.
+- [Build Your Own Strace](086-challenge-strace.md) (intermediate) — Build your own version of strace, the system call tracer for Linux.
+- [Build Your Own Code Comment Remover](087-challenge-code-comment-remover.md) (intermediate) — Build a tool that strips comments from source code files.
+- [Build Your Own Top](088-challenge-top.md) (intermediate) — Build your own version of the top process monitoring tool.
+- [Build Your Own ELIZA](089-challenge-eliza.md) (intermediate) — Build your own version of ELIZA, the classic AI chatbot that simulates a psychotherapist.
+- [Build Your Own SMTP Server](090-challenge-smtp.md) (intermediate) — Build an SMTP server that can receive and process email messages.
+- [Build Your Own Monkeytype](091-challenge-monkeytype.md) (intermediate) — Build a typing speed test application similar to Monkeytype.
+- [Build Your Own LOC Counter](092-challenge-loc-counter.md) (intermediate) — Build a lines-of-code counter that analyses codebases and reports statistics.
+- [Build Your Own Which](093-challenge-which.md) (beginner) — Build your own version of the which command for locating executables in PATH.
+- [Build Your Own Forth Interpreter](094-challenge-forth.md) (intermediate) — Build an interpreter for the Forth stack-based programming language.
+- [Build Your Own Whois](095-challenge-whois.md) (beginner) — Build your own whois client for querying domain registration information.
+- [Build Your Own Bitcask](096-challenge-bitcask.md) (intermediate) — Build a Bitcask key-value store - a log-structured storage engine with fast reads and writes.
+- [Build Your Own Spelling Correction Tool](097-challenge-spelling-correction.md) (intermediate) — Build a spelling correction tool that suggests corrections for misspelled words.
+- [Build Your Own Language Server (LSP)](098-challenge-lsp.md) (intermediate) — Build a Language Server Protocol implementation for IDE integration.
+- [Build Your Own BitTorrent Client](099-challenge-bittorrent.md) (intermediate) — Build a BitTorrent client that parses torrent files, communicates with trackers, connects to peers, and downloads files using the peer-to-peer protocol.
+- [Build Your Own Echo Server](100-challenge-echo.md) (beginner) — Build a simple echo server that returns whatever is sent to it.
+- [Build Your Own LLM Powered AI Chatbot](101-challenge-llm-chatbot.md) (beginner) — Build an AI chatbot powered by a large language model API with conversation history and system prompts.
+- [Build Your Own Software Teleprompter](102-challenge-teleprompter.md) (beginner) — Build a software teleprompter for scrolling text display.
+- [Build Your Own MCP Server For AI Agents](103-challenge-mcp-server.md) (intermediate) — Build a Model Context Protocol server for providing context to AI agents.
+- [Build Your Own Top Programming Stories Dashboard](104-challenge-top-stories.md) (intermediate) — Build a dashboard that aggregates and displays top programming stories from various sources.
+- [Build Your Own JSON Validator And Prettier](105-challenge-json-validator.md) (intermediate) — Build a JSON validator and formatter that validates JSON and pretty-prints it.
+- [Build Your Own Loom Clone](106-challenge-loom.md) (intermediate) — Build a screen recording and sharing tool similar to Loom.
+- [Build Your Own Online Python Playground](107-challenge-online-python-playground.md) (intermediate) — Build an online Python code editor and execution environment.
+- [Build Your Own Ebook Reader](108-challenge-ebook-reader.md) (intermediate) — Build an ebook reader that can parse and display ebook formats.
+- [Build Your Own RTFM For Me Agent](109-challenge-rtfm-agent.md) (intermediate) — Build an AI agent that reads documentation and answers questions about it.

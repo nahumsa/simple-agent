@@ -97,7 +97,15 @@ class SimpleAgentLoop:
                 )
                 continue
 
-            tool_calls.append(ToolCall(id=raw_call.id, name=raw_call.name, args=args))
+            tool_calls.append(
+                ToolCall(
+                    id=raw_call.id,
+                    name=raw_call.name,
+                    args=args,
+                    raw_arguments=raw_call.arguments,
+                    extra_content=getattr(raw_call, "extra_content", None),
+                )
+            )
 
         return LLMResult(content=response.content, tool_calls=tool_calls)
 

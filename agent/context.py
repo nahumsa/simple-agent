@@ -34,11 +34,7 @@ class InMemoryContext:
                 "role": "assistant",
                 "content": result.content,
                 "tool_calls": [
-                    {
-                        "id": tool.id,
-                        "name": tool.name,
-                        "arguments": tool.args,
-                    }
+                    _tool_call_message(tool)
                     for tool in result.tool_calls
                 ],
             }
@@ -70,3 +66,15 @@ class InMemoryContext:
 
     async def compact(self) -> None:
         return None
+
+
+def _tool_call_message(tool: Any) -> dict[str, Any]:
+    message = {
+        "id": tool.id,
+        "name": tool.name,
+        "arguments": tool.args,
+        "raw_arguments": tool.raw_arguments,
+    }
+    if tool.extra_content is not None:
+        message["extra_content"] = tool.extra_content
+    return message

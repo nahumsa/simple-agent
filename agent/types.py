@@ -11,6 +11,8 @@ class ToolCall:
     id: str
     name: str
     args: dict[str, Any]
+    raw_arguments: str | None = None
+    extra_content: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)

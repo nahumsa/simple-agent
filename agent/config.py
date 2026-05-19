@@ -19,7 +19,7 @@ LLM_BASE_URL_ENV = "LLM_BASE_URL"
 LLM_API_KEY_ENV = "LLM_API_KEY"
 LLM_REQUEST_TIMEOUT_SECONDS_ENV = "LLM_REQUEST_TIMEOUT_SECONDS"
 SYSTEM_PROMPT_FILE_ENV = "SYSTEM_PROMPT_FILE"
-DEFAULT_SYSTEM_PROMPT_FILE = "prompts/system_prompt.md"
+DEFAULT_SYSTEM_PROMPT_FILE = "prompts/system_prompt_tool.md"
 DEFAULT_MAX_ITERATIONS = 8
 DEFAULT_REQUEST_TIMEOUT_SECONDS = 60
 
@@ -83,7 +83,9 @@ def _env_provider(env: Mapping[str, str]) -> Provider:
     provider = env.get(LLM_PROVIDER_ENV, DEFAULT_PROVIDER)
     if provider not in _APP_PROVIDERS:
         choices = ", ".join(PROVIDER_CHOICES)
-        raise ValueError(f"Invalid {LLM_PROVIDER_ENV}={provider!r}. Expected one of: {choices}.")
+        raise ValueError(
+            f"Invalid {LLM_PROVIDER_ENV}={provider!r}. Expected one of: {choices}."
+        )
     return cast(Provider, provider)
 
 
