@@ -1,4 +1,4 @@
-.PHONY: install ruff mypy lint test ci
+.PHONY: install ruff mypy lint split-challenge-data test ci
 
 install:
 	uv sync --dev
@@ -10,6 +10,9 @@ mypy:
 	uv run mypy .
 
 lint: ruff mypy
+
+split-challenge-data:
+	uv run python scripts/split_challenge_data.py
 
 test:
 	uv run pytest
