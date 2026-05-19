@@ -13,7 +13,7 @@ It is a good project if you want to learn how an LLM-powered agent works from en
 
 The agent starts a terminal chat session, loads a system prompt, gives the model access to the local Coding Challenges markdown files, and lets the model call tools such as `read_challenge_index` and `read_file` before answering.
 
-There are some patterns which are heavily inpired by [ml-intern](https://github.com/huggingface/ml-intern/tree/main).
+There are some patterns which are heavily inspired by [ml-intern](https://github.com/huggingface/ml-intern/tree/main).
 
 ---
 
