@@ -5,9 +5,8 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import Any
 
-from agent.types import ToolCallSignature
+from agent.types import JsonObject, ToolCallSignature
 
 
 def normalize_jsonish(value: str) -> str:
@@ -31,7 +30,7 @@ def short_hash(value: str) -> str:
 
 
 def find_tool_result_hash(
-    following_messages: list[dict[str, Any]],
+    following_messages: list[JsonObject],
     tool_call_id: str | None,
 ) -> str | None:
     """Find the matching tool result before the next user/assistant message."""
@@ -48,7 +47,7 @@ def find_tool_result_hash(
 
 
 def extract_recent_tool_signatures(
-    messages: list[dict[str, Any]],
+    messages: list[JsonObject],
     lookback: int = 30,
 ) -> list[ToolCallSignature]:
     """Extract recent assistant tool calls as comparable signatures."""
@@ -59,16 +58,25 @@ def extract_recent_tool_signatures(
         if message.get("role") != "assistant":
             continue
 
-        for tool_call in message.get("tool_calls") or []:
+        tool_calls = message.get("tool_calls")
+        if not isinstance(tool_calls, list):
+            continue
+
+        for tool_call in tool_calls:
+            if not isinstance(tool_call, dict):
+                continue
             tool_call_id = tool_call.get("id")
             name = tool_call.get("name", "")
             args = tool_call.get("arguments", {})
             args_str = json.dumps(args, sort_keys=True)
-            result_hash = find_tool_result_hash(recent[index + 1 :], tool_call_id)
+            result_hash = find_tool_result_hash(
+                recent[index + 1 :],
+                str(tool_call_id) if tool_call_id is not None else None,
+            )
 
             signatures.append(
                 ToolCallSignature(
-                    name=name,
+                    name=str(name),
                     args_hash=short_hash(args_str),
                     result_hash=result_hash,
                 )
@@ -123,7 +131,7 @@ def detect_repeating_sequence(
     return None
 
 
-def check_for_doom_loop(messages: list[dict[str, Any]]) -> str | None:
+def check_for_doom_loop(messages: list[JsonObject]) -> str | None:
     """Return a corrective prompt if recent tool use looks stuck."""
     signatures = extract_recent_tool_signatures(messages)
     if len(signatures) < 3:

@@ -4,16 +4,16 @@ from __future__ import annotations
 
 import asyncio
 import json
-from typing import Any
 
 from agent.doom_loop import check_for_doom_loop
-from agent.types import LLMResult, ToolCall
+from agent.interfaces import AgentSession
+from agent.types import JsonObject, LLMResult, ToolCall
 
 
 class SimpleAgentLoop:
     """Small orchestration loop for a tool-using LLM agent."""
 
-    def __init__(self, session: Any):
+    def __init__(self, session: AgentSession):
         self.session = session
 
     async def run(self, submission_queue: asyncio.Queue) -> None:
@@ -177,7 +177,7 @@ class SimpleAgentLoop:
 
         return False
 
-    async def handle_approval(self, approvals: list[dict[str, Any]]) -> None:
+    async def handle_approval(self, approvals: list[JsonObject]) -> None:
         pending: list[ToolCall] = self.session.pending_approval or []
         self.session.pending_approval = None
 

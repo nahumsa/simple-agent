@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
-from typing import Any, Protocol
+from typing import Protocol
 
-from agent.types import LLMResult
+from agent.config import AgentConfig
+from agent.types import JsonObject, LLMResponse, LLMResult, ToolCall, ToolSpec
 
 
 class Context(Protocol):
     @property
     def needs_compaction(self) -> bool: ...
-    def messages(self) -> list[dict[str, Any]]: ...
+    def messages(self) -> list[JsonObject]: ...
     def add_user_message(self, content: str) -> None: ...
     def add_assistant_message(self, content: str) -> None: ...
     def add_assistant_tool_calls(self, result: LLMResult) -> None: ...
@@ -27,13 +28,13 @@ class Context(Protocol):
 
 
 class Tools(Protocol):
-    def specs(self) -> list[dict[str, Any]]: ...
+    def specs(self) -> list[ToolSpec]: ...
     async def call(
         self,
         name: str,
-        args: dict[str, Any],
+        args: JsonObject,
         *,
-        session: Any,
+        session: object,
         tool_call_id: str,
     ) -> tuple[str, bool]: ...
     async def cancel_running(self) -> None: ...
@@ -43,6 +44,19 @@ class LLM(Protocol):
     async def complete(
         self,
         *,
-        messages: list[dict[str, Any]],
-        tools: list[dict[str, Any]],
-    ) -> Any: ...
+        messages: list[JsonObject],
+        tools: list[ToolSpec],
+    ) -> LLMResponse: ...
+
+
+class AgentSession(Protocol):
+    config: AgentConfig
+    context: Context
+    tools: Tools
+    llm: LLM
+    running: bool
+    cancelled: bool
+    pending_approval: list[ToolCall] | None
+
+    async def emit(self, event: str, payload: JsonObject) -> None: ...
+    async def save(self) -> None: ...

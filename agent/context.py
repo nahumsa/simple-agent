@@ -2,16 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Any
-
-from agent.types import LLMResult
+from agent.types import JsonObject, LLMResult, ToolCall
 
 
 class InMemoryContext:
     """Small in-memory conversation store for the CLI."""
 
     def __init__(self, system_prompt: str | None = None) -> None:
-        self._messages: list[dict[str, Any]] = []
+        self._messages: list[JsonObject] = []
         if system_prompt:
             self._messages.append({"role": "system", "content": system_prompt})
 
@@ -19,7 +17,7 @@ class InMemoryContext:
     def needs_compaction(self) -> bool:
         return False
 
-    def messages(self) -> list[dict[str, Any]]:
+    def messages(self) -> list[JsonObject]:
         return self._messages.copy()
 
     def add_user_message(self, content: str) -> None:
@@ -68,8 +66,8 @@ class InMemoryContext:
         return None
 
 
-def _tool_call_message(tool: Any) -> dict[str, Any]:
-    message = {
+def _tool_call_message(tool: ToolCall) -> JsonObject:
+    message: JsonObject = {
         "id": tool.id,
         "name": tool.name,
         "arguments": tool.args,

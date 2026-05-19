@@ -3,21 +3,22 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+
+from agent.types import JsonObject, ToolSpec
 
 
 class NoTools:
     """Empty tool registry for plain chat mode."""
 
-    def specs(self) -> list[dict[str, Any]]:
+    def specs(self) -> list[ToolSpec]:
         return []
 
     async def call(
         self,
         name: str,
-        args: dict[str, Any],
+        args: JsonObject,
         *,
-        session: Any,
+        session: object,
         tool_call_id: str,
     ) -> tuple[str, bool]:
         return f"Unknown tool: {name}", False
@@ -46,7 +47,7 @@ class ChallengeDataTools:
             f"{index}"
         )
 
-    def specs(self) -> list[dict[str, Any]]:
+    def specs(self) -> list[ToolSpec]:
         return [
             {
                 "type": "function",
@@ -87,9 +88,9 @@ class ChallengeDataTools:
     async def call(
         self,
         name: str,
-        args: dict[str, Any],
+        args: JsonObject,
         *,
-        session: Any,
+        session: object,
         tool_call_id: str,
     ) -> tuple[str, bool]:
         if name == "read_challenge_index":

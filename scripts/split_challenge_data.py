@@ -7,10 +7,30 @@ import argparse
 import json
 import re
 from pathlib import Path
-from typing import Any
+from typing import NotRequired, TypedDict
 
 DEFAULT_INPUT = Path("data/challenge-data.json")
 DEFAULT_OUTPUT_DIR = Path("data/extracted_data")
+
+
+class Challenge(TypedDict):
+    id: int | str
+    title: str
+    slug: str
+    url: str
+    difficulty: str
+    description: str
+    skills: NotRequired[list[str]]
+
+
+class GettingStarted(TypedDict, total=False):
+    steps: list[str]
+    recommended_first_challenges: list[str]
+
+
+class Troubleshooting(TypedDict, total=False):
+    general_advice: str
+    steps: list[str]
 
 
 def slugify(value: str) -> str:
@@ -23,7 +43,7 @@ def yaml_list(items: list[str]) -> str:
     return "\n".join(f"  - {json.dumps(item)}" for item in items)
 
 
-def create_preamble(challenge: dict[str, Any], skills: list[str]) -> str:
+def create_preamble(challenge: Challenge, skills: list[str]) -> str:
     return (
         "---\n"
         f"id: {challenge['id']}\n"
@@ -37,7 +57,7 @@ def create_preamble(challenge: dict[str, Any], skills: list[str]) -> str:
     )
 
 
-def challenge_to_markdown(challenge: dict[str, Any]) -> str:
+def challenge_to_markdown(challenge: Challenge) -> str:
     skills = challenge.get("skills", [])
     skill_text = ", ".join(skills)
     preamble = create_preamble(challenge, skills)
@@ -52,7 +72,7 @@ def challenge_to_markdown(challenge: dict[str, Any]) -> str:
     )
 
 
-def getting_started_to_markdown(data: dict[str, Any]) -> str:
+def getting_started_to_markdown(data: GettingStarted) -> str:
     lines = ["# Getting Started", ""]
     lines.append("## Steps")
     lines.extend(
@@ -69,7 +89,7 @@ def getting_started_to_markdown(data: dict[str, Any]) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
-def troubleshooting_to_markdown(data: dict[str, Any]) -> str:
+def troubleshooting_to_markdown(data: Troubleshooting) -> str:
     lines = ["# Troubleshooting", ""]
     if data.get("general_advice"):
         lines.extend([data["general_advice"], ""])
@@ -89,7 +109,7 @@ def faq_to_markdown(items: list[dict[str, str]]) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
-def index_to_markdown(challenges: list[dict[str, Any]]) -> str:
+def index_to_markdown(challenges: list[Challenge]) -> str:
     lines = ["# Coding Challenges", ""]
     for challenge in challenges:
         filename = challenge_filename(challenge)
@@ -101,7 +121,7 @@ def index_to_markdown(challenges: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def challenge_filename(challenge: dict[str, Any]) -> str:
+def challenge_filename(challenge: Challenge) -> str:
     challenge_id = int(challenge["id"])
     slug = slugify(str(challenge.get("slug") or challenge.get("title") or challenge_id))
     return f"{challenge_id:03d}-{slug}.md"

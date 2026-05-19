@@ -5,10 +5,12 @@ import json
 import logging
 import urllib.error
 import urllib.request
-from types import SimpleNamespace
-from typing import Any
+from collections.abc import Mapping
+from typing import cast
 
 from agent.config import LLMConfig
+from agent.interfaces import LLM
+from agent.types import JsonObject, LLMResponse, RawLLMToolCall, ToolSpec
 
 logger = logging.getLogger(__name__)
 
@@ -19,20 +21,20 @@ class EchoLLM:
     async def complete(
         self,
         *,
-        messages: list[dict[str, Any]],
-        tools: list[dict[str, Any]],
-    ) -> Any:
+        messages: list[JsonObject],
+        tools: list[ToolSpec],
+    ) -> LLMResponse:
         _debug_json("LLM request messages", messages)
         _debug_json("LLM request tools", tools)
         last_user = next(
             (
-                message["content"]
+                str(message["content"])
                 for message in reversed(messages)
                 if message["role"] == "user"
             ),
             "",
         )
-        response = SimpleNamespace(content=f"Echo: {last_user}", tool_calls=[])
+        response = LLMResponse(content=f"Echo: {last_user}", tool_calls=[])
         _debug_json("LLM response", {"content": response.content, "tool_calls": response.tool_calls})
         return response
 
@@ -51,15 +53,15 @@ class OpenAIChatLLM:
     async def complete(
         self,
         *,
-        messages: list[dict[str, Any]],
-        tools: list[dict[str, Any]],
-    ) -> Any:
+        messages: list[JsonObject],
+        tools: list[ToolSpec],
+    ) -> LLMResponse:
         return await asyncio.to_thread(self._complete_sync, messages, tools)
 
     def _complete_sync(
-        self, messages: list[dict[str, Any]], tools: list[dict[str, Any]]
-    ) -> Any:
-        payload_dict: dict[str, Any] = {
+        self, messages: list[JsonObject], tools: list[ToolSpec]
+    ) -> LLMResponse:
+        payload_dict: JsonObject = {
             "model": self.model,
             "messages": [_to_openai_message(message) for message in messages],
         }
@@ -88,7 +90,7 @@ class OpenAIChatLLM:
 
         _debug_json("LLM response payload", data)
         message = data["choices"][0]["message"]
-        result = SimpleNamespace(
+        result = LLMResponse(
             content=message.get("content"),
             tool_calls=[_to_tool_call(call) for call in message.get("tool_calls", [])],
         )
@@ -96,25 +98,32 @@ class OpenAIChatLLM:
             "LLM parsed response",
             {
                 "content": result.content,
-                "tool_calls": [vars(call) for call in result.tool_calls],
+                "tool_calls": [call.__dict__ for call in result.tool_calls],
             },
         )
         return result
 
 
-def _debug_json(label: str, data: Any) -> None:
+def _debug_json(label: str, data: object) -> None:
     if not logger.isEnabledFor(logging.DEBUG):
         return
     logger.debug("%s:\n%s", label, json.dumps(data, indent=2, ensure_ascii=False, default=str))
 
 
-def _to_openai_message(message: dict[str, Any]) -> dict[str, Any]:
+def _to_openai_message(message: JsonObject) -> JsonObject:
     role = message["role"]
     if role == "assistant" and "tool_calls" in message:
+        tool_calls = message["tool_calls"]
         return {
             "role": "assistant",
             "content": message.get("content") or "",
-            "tool_calls": [_to_openai_tool_call(call) for call in message["tool_calls"]],
+            "tool_calls": [
+                _to_openai_tool_call(call)
+                for call in tool_calls
+                if isinstance(call, dict)
+            ]
+            if isinstance(tool_calls, list)
+            else [],
         }
 
     if role == "tool":
@@ -130,8 +139,8 @@ def _to_openai_message(message: dict[str, Any]) -> dict[str, Any]:
     return {"role": role, "content": message.get("content") or ""}
 
 
-def _to_openai_tool_call(call: dict[str, Any]) -> dict[str, Any]:
-    openai_call: dict[str, Any] = {
+def _to_openai_tool_call(call: JsonObject) -> JsonObject:
+    openai_call: JsonObject = {
         "id": call["id"],
         "type": "function",
         "function": {
@@ -144,17 +153,18 @@ def _to_openai_tool_call(call: dict[str, Any]) -> dict[str, Any]:
     return openai_call
 
 
-def _to_tool_call(call: dict[str, Any]) -> Any:
+def _to_tool_call(call: Mapping[str, object]) -> RawLLMToolCall:
     function = call.get("function", {})
-    return SimpleNamespace(
-        id=call.get("id", ""),
-        name=function.get("name", ""),
-        arguments=function.get("arguments", "{}"),
-        extra_content=call.get("extra_content"),
+    function_data = function if isinstance(function, dict) else {}
+    return RawLLMToolCall(
+        id=str(call.get("id", "")),
+        name=str(function_data.get("name", "")),
+        arguments=str(function_data.get("arguments", "{}")),
+        extra_content=cast(JsonObject | None, call.get("extra_content")),
     )
 
 
-def build_llm(config: LLMConfig) -> Any:
+def build_llm(config: LLMConfig) -> LLM:
     provider = config.provider
 
     if provider == "echo":
