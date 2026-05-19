@@ -43,7 +43,9 @@ def test_undo_preserves_system_prompt() -> None:
 def test_cli_session_uses_configured_system_prompt() -> None:
     session = CliSession(DummyLLM(), AgentConfig(system_prompt="You are concise."))
 
-    assert session.context.messages() == [{"role": "system", "content": "You are concise."}]
+    assert session.context.messages() == [
+        {"role": "system", "content": "You are concise."}
+    ]
 
 
 def test_config_from_args_reads_system_prompt_file_env(monkeypatch, tmp_path) -> None:
@@ -68,10 +70,12 @@ def test_config_from_args_prefers_system_prompt_file_arg(monkeypatch, tmp_path) 
     assert config.agent.system_prompt == "arg prompt"
 
 
-def test_config_from_args_reads_default_project_system_prompt(monkeypatch, tmp_path) -> None:
+def test_config_from_args_reads_default_project_system_prompt(
+    monkeypatch, tmp_path
+) -> None:
     prompts_dir = tmp_path / "prompts"
     prompts_dir.mkdir()
-    prompt_file = prompts_dir / "system_prompt.md"
+    prompt_file = prompts_dir / "system_prompt_tool.md"
     prompt_file.write_text("default prompt", encoding="utf-8")
     monkeypatch.chdir(tmp_path)
     monkeypatch.delenv("SYSTEM_PROMPT_FILE", raising=False)
