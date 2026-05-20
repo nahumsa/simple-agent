@@ -1,8 +1,8 @@
 import argparse
 
-from agent.config import AgentConfig
-from agent.context import InMemoryContext
-from agent.session import CliSession
+from agent_core.config import AgentConfig
+from frameworks.barebones.context import InMemoryContext
+from frameworks.barebones.session import CliSession
 from cli import config_from_args
 
 

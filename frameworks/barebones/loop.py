@@ -5,9 +5,9 @@ from __future__ import annotations
 import asyncio
 import json
 
-from agent.doom_loop import check_for_doom_loop
-from agent.interfaces import AgentSession
-from agent.types import JsonObject, LLMResult, ToolCall
+from frameworks.barebones.doom_loop import check_for_doom_loop
+from agent_core.interfaces import AgentSession
+from agent_core.types import JsonObject, LLMResult, ToolCall
 
 
 class SimpleAgentLoop:

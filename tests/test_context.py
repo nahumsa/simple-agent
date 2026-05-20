@@ -1,4 +1,4 @@
-from agent.context import InMemoryContext
+from frameworks.barebones.context import InMemoryContext
 
 
 def test_messages_returns_shallow_copy() -> None:

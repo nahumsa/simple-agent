@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TypeAlias
 
 JsonObject: TypeAlias = dict[str, object]
@@ -45,3 +45,14 @@ class ToolCallSignature:
     name: str
     args_hash: str
     result_hash: str | None = None
+
+
+@dataclass(frozen=True)
+class ChatTurnResult:
+    """Framework-neutral result for one chat turn."""
+
+    content: str
+    framework: str
+    iterations: int | None = None
+    tool_calls: list[ToolCall] = field(default_factory=list)
+    raw: object | None = None

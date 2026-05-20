@@ -6,7 +6,7 @@ from __future__ import annotations
 import hashlib
 import json
 
-from agent.types import JsonObject, ToolCallSignature
+from agent_core.types import JsonObject, ToolCallSignature
 
 
 def normalize_jsonish(value: str) -> str:

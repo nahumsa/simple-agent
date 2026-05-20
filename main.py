@@ -1,11 +1,7 @@
-"""Public compatibility module and CLI entrypoint for the educational agent.
+"""Thin CLI entrypoint for the educational chatbot.
 
-The implementation lives in the ``agent`` package:
-- agent/types.py: shared dataclasses
-- agent/doom_loop.py: repeated tool-call detection
-- agent/interfaces.py: protocol definitions
-- agent/loop.py: SimpleAgentLoop orchestration
-- cli.py: command-line chat interface
+Core framework-neutral code lives in ``agent_core``. Framework-specific
+implementations live under ``frameworks``.
 """
 
 from cli import main

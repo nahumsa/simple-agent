@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from agent.types import JsonObject, LLMResult, ToolCall
+from agent_core.types import JsonObject, LLMResult, ToolCall
 
 
 class InMemoryContext:

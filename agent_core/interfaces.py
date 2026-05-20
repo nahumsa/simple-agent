@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from agent.config import AgentConfig
-from agent.types import JsonObject, LLMResponse, LLMResult, ToolCall, ToolSpec
+from agent_core.config import AgentConfig
+from agent_core.types import ChatTurnResult, JsonObject, LLMResponse, LLMResult, ToolCall, ToolSpec
 
 
 class Context(Protocol):
@@ -60,3 +60,7 @@ class AgentSession(Protocol):
 
     async def emit(self, event: str, payload: JsonObject) -> None: ...
     async def save(self) -> None: ...
+
+
+class ChatFramework(Protocol):
+    async def run_turn(self, user_text: str) -> ChatTurnResult: ...

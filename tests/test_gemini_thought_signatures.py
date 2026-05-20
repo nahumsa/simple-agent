@@ -1,6 +1,6 @@
-from agent.context import InMemoryContext
-from agent.llms import _to_openai_message, _to_tool_call
-from agent.types import LLMResult, ToolCall
+from frameworks.barebones.context import InMemoryContext
+from frameworks.barebones.llms import _to_openai_message, _to_tool_call
+from agent_core.types import LLMResult, ToolCall
 
 
 def test_tool_call_parser_preserves_gemini_thought_signature() -> None:

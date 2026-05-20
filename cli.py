@@ -8,14 +8,16 @@ import logging
 import os
 from pathlib import Path
 
-from agent.config import (
+from agent_core.config import (
     AgentConfig,
     AppConfig,
     DEFAULT_BASE_URL,
+    DEFAULT_FRAMEWORK,
     DEFAULT_MAX_ITERATIONS,
     DEFAULT_MODEL,
     DEFAULT_PROVIDER,
     DEFAULT_SYSTEM_PROMPT_FILE,
+    FRAMEWORK_CHOICES,
     LLM_API_KEY_ENV,
     LLM_BASE_URL_ENV,
     LLM_MODEL_ENV,
@@ -26,10 +28,7 @@ from agent.config import (
     PROVIDER_CHOICES,
     SYSTEM_PROMPT_FILE_ENV,
 )
-from agent.llms import build_llm
-from agent.loop import SimpleAgentLoop
-from agent.session import CliSession
-from agent.tools import ChallengeDataTools
+from agent_core.framework_factory import build_chat_framework
 
 
 def read_system_prompt(path: str | None) -> str | None:
@@ -67,20 +66,13 @@ def config_from_args(args: argparse.Namespace) -> AppConfig:
     )
 
 
-def agent_config_with_challenge_context(config: AgentConfig, tools: ChallengeDataTools) -> AgentConfig:
-    """Append the extracted challenge index to the system prompt when available."""
-    parts = [part for part in [config.system_prompt, tools.initial_context()] if part]
-    if not parts:
-        return config
-    return AgentConfig(max_iterations=config.max_iterations, system_prompt="\n\n".join(parts))
-
-
 async def chat(args: argparse.Namespace) -> None:
     config = config_from_args(args)
-    tools = ChallengeDataTools()
-    agent_config = agent_config_with_challenge_context(config.agent, tools)
-    agent = SimpleAgentLoop(CliSession(build_llm(config.llm), agent_config, tools=tools))
-    print(f"Chat started with {config.llm.provider}:{config.llm.model}. Type /exit or /quit to stop.")
+    agent = build_chat_framework(args.framework, config)
+    print(
+        f"Chat started with {args.framework} using "
+        f"{config.llm.provider}:{config.llm.model}. Type /exit or /quit to stop."
+    )
 
     while True:
         try:
@@ -94,11 +86,19 @@ async def chat(args: argparse.Namespace) -> None:
         if not user_text:
             continue
 
-        await agent.run_turn(user_text)
+        result = await agent.run_turn(user_text)
+        if result.content:
+            print(f"assistant: {result.content}")
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Chat with the simple agent.")
+    parser.add_argument(
+        "--framework",
+        choices=FRAMEWORK_CHOICES,
+        default=DEFAULT_FRAMEWORK,
+        help=f"Agent framework to use. Defaults to {DEFAULT_FRAMEWORK}.",
+    )
     parser.add_argument(
         "--provider",
         choices=PROVIDER_CHOICES,

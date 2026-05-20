@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from agent.types import JsonObject, ToolSpec
+from agent_core.types import JsonObject, ToolSpec
 
 
 class NoTools:

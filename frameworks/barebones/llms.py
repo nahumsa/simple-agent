@@ -8,9 +8,9 @@ import urllib.request
 from collections.abc import Mapping
 from typing import cast
 
-from agent.config import LLMConfig
-from agent.interfaces import LLM
-from agent.types import JsonObject, LLMResponse, RawLLMToolCall, ToolSpec
+from agent_core.config import LLMConfig
+from agent_core.interfaces import LLM
+from agent_core.types import JsonObject, LLMResponse, RawLLMToolCall, ToolSpec
 
 logger = logging.getLogger(__name__)
 
