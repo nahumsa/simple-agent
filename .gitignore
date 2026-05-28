@@ -8,3 +8,7 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Local generated DuckDB search indexes
+data/*.duckdb
+data/*.duckdb.wal

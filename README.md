@@ -21,7 +21,7 @@ There are some patterns which are heavily inspired by [ml-intern](https://github
 
 - Chat with a local Ollama model, OpenAI, or an OpenAI-compatible endpoint.
 - Answer questions about the Coding Challenges dataset in `data/extracted_data/`.
-- Let the model browse challenge markdown files through safe read-only tools.
+- Let the model browse and full-text search challenge markdown files through safe read-only tools.
 - Keep conversation history in memory during the current terminal session.
 - Detect repeated tool-call loops and nudge the model to try a different approach.
 - Run without an API key in `echo` mode for a quick smoke test.
@@ -190,9 +190,12 @@ you: Find a challenge that teaches parsing and give me a plan for solving it.
 When the model needs details, it can call the built-in tools:
 
 - `read_challenge_index` reads `data/extracted_data/index.md`.
+- `search_challenges` full-text searches the markdown files with DuckDB's FTS extension.
 - `read_file` reads a specific markdown file from `data/extracted_data/`, for example `001-challenge-wc.md`.
 
 The CLI prints final assistant messages directly. Tool output is stored in the conversation context so the model can use it in the next step.
+
+The DuckDB search index is stored locally at `data/challenge_search.duckdb`. On each search, the agent compares the current number of markdown files with metadata stored in DuckDB and rebuilds the FTS index when the count changes.
 
 ---
 
