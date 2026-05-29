@@ -107,7 +107,7 @@ def test_search_does_not_refresh_recent_index_when_markdown_file_count_changes(t
 def test_challenge_data_tool_validates_and_clamps_search_arguments(tmp_path) -> None:
     class SearchSpy:
         def __init__(self) -> None:
-            self.calls = []
+            self.calls: list[tuple[str, int]] = []
 
         def search(self, query: str, *, limit: int) -> tuple[str, bool]:
             self.calls.append((query, limit))
