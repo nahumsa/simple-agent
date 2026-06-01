@@ -1,8 +1,7 @@
 import asyncio
 import json
-from datetime import timedelta
 
-from frameworks.barebones.tools import ChallengeDataTools, DuckDBFTSMarkdownSearch
+from frameworks.barebones.tools import ChallengeDataTools, DuckDBFTSMarkdownSearch, SearchResult
 
 
 def test_markdown_documents_ignore_index_and_extract_titles(tmp_path) -> None:
@@ -43,14 +42,11 @@ def test_search_returns_matching_markdown_documents(tmp_path) -> None:
         encoding="utf-8",
     )
 
-    payload, ok = DuckDBFTSMarkdownSearch(data_dir, db_path).search("pipes", limit=5)
+    results = DuckDBFTSMarkdownSearch(data_dir, db_path).search("pipes", limit=5)
 
-    assert ok is True
-    parsed = json.loads(payload)
-    assert parsed["query"] == "pipes"
-    assert [result["path"] for result in parsed["results"]] == ["001-shell.md"]
-    assert parsed["results"][0]["title"] == "Build Your Own Shell"
-    assert "Implement pipes and command execution." in parsed["results"][0]["snippet"]
+    assert [result.path for result in results] == ["001-shell.md"]
+    assert results[0].title == "Build Your Own Shell"
+    assert "Implement pipes and command execution." in results[0].snippet
     assert db_path.exists()
 
 
@@ -59,49 +55,38 @@ def test_search_refreshes_index_when_markdown_file_count_changes(tmp_path) -> No
         "# Shell\n\nImplement command execution.",
         encoding="utf-8",
     )
-    search = DuckDBFTSMarkdownSearch(
-        tmp_path,
-        tmp_path / "search.duckdb",
-        rebuild_interval=timedelta(0),
-    )
+    search = DuckDBFTSMarkdownSearch(tmp_path, tmp_path / "search.duckdb")
 
-    initial_payload, initial_ok = search.search("zebra", limit=5)
-    assert initial_ok is True
-    assert json.loads(initial_payload)["results"] == []
+    assert search.search("zebra", limit=5) == []
 
     (tmp_path / "002-cache.md").write_text(
         "# Cache\n\nStore zebra tokens for later retrieval.",
         encoding="utf-8",
     )
 
-    refreshed_payload, refreshed_ok = search.search("zebra", limit=5)
+    refreshed_results = search.search("zebra", limit=5)
 
-    assert refreshed_ok is True
-    assert [result["path"] for result in json.loads(refreshed_payload)["results"]] == [
-        "002-cache.md"
-    ]
+    assert [result.path for result in refreshed_results] == ["002-cache.md"]
 
 
-def test_search_does_not_refresh_recent_index_when_markdown_file_count_changes(tmp_path) -> None:
-    (tmp_path / "001-shell.md").write_text(
+def test_search_refreshes_index_when_markdown_content_changes(tmp_path) -> None:
+    markdown_path = tmp_path / "001-shell.md"
+    markdown_path.write_text(
         "# Shell\n\nImplement command execution.",
         encoding="utf-8",
     )
     search = DuckDBFTSMarkdownSearch(tmp_path, tmp_path / "search.duckdb")
 
-    initial_payload, initial_ok = search.search("zebra", limit=5)
-    assert initial_ok is True
-    assert json.loads(initial_payload)["results"] == []
+    assert search.search("zebra", limit=5) == []
 
-    (tmp_path / "002-cache.md").write_text(
-        "# Cache\n\nStore zebra tokens for later retrieval.",
+    markdown_path.write_text(
+        "# Shell\n\nImplement command execution with zebra tokens.",
         encoding="utf-8",
     )
 
-    skipped_payload, skipped_ok = search.search("zebra", limit=5)
+    refreshed_results = search.search("zebra", limit=5)
 
-    assert skipped_ok is True
-    assert json.loads(skipped_payload)["results"] == []
+    assert [result.path for result in refreshed_results] == ["001-shell.md"]
 
 
 def test_challenge_data_tool_validates_and_clamps_search_arguments(tmp_path) -> None:
@@ -109,9 +94,16 @@ def test_challenge_data_tool_validates_and_clamps_search_arguments(tmp_path) -> 
         def __init__(self) -> None:
             self.calls: list[tuple[str, int]] = []
 
-        def search(self, query: str, *, limit: int) -> tuple[str, bool]:
+        def search(self, query: str, *, limit: int) -> list[SearchResult]:
             self.calls.append((query, limit))
-            return "search response", True
+            return [
+                SearchResult(
+                    path="001-parser.md",
+                    title="Parser",
+                    score=1.5,
+                    snippet="Parse command line flags.",
+                )
+            ]
 
     tools = ChallengeDataTools(data_dir=tmp_path, search_db_path=tmp_path / "search.duckdb")
     spy = SearchSpy()
@@ -147,6 +139,20 @@ def test_challenge_data_tool_validates_and_clamps_search_arguments(tmp_path) -> 
 
     assert missing_query == ("Missing required string argument: query", False)
     assert invalid_limit == ("limit must be an integer", False)
-    assert clamped_low == ("search response", True)
-    assert clamped_high == ("search response", True)
+    expected_results = [
+        {
+            "path": "001-parser.md",
+            "title": "Parser",
+            "score": 1.5,
+            "snippet": "Parse command line flags.",
+        }
+    ]
+    assert clamped_low == (
+        json.dumps({"query": "parser", "results": expected_results}, indent=2),
+        True,
+    )
+    assert clamped_high == (
+        json.dumps({"query": "editor", "results": expected_results}, indent=2),
+        True,
+    )
     assert spy.calls == [("parser", 1), ("editor", 20)]
