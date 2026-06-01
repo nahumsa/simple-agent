@@ -6,7 +6,7 @@ from typing import cast
 
 from agent_core.config import AgentConfig
 from agent_core.interfaces import Context, LLM, Tools
-from agent_core.types import JsonObject, ToolCall
+from agent_core.types import JsonObject
 from frameworks.barebones.context import InMemoryContext
 from frameworks.barebones.tools import NoTools
 
@@ -29,7 +29,6 @@ class CliSession:
         self.emit_messages = emit_messages
         self.running = True
         self.cancelled = False
-        self.pending_approval: list[ToolCall] | None = None
 
     async def emit(self, event: str, payload: JsonObject) -> None:
         if event == "assistant_message" and self.emit_messages:

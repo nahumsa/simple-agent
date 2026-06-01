@@ -7,7 +7,7 @@ import json
 
 from frameworks.barebones.doom_loop import check_for_doom_loop
 from agent_core.interfaces import AgentSession
-from agent_core.types import JsonObject, LLMResult, ToolCall
+from agent_core.types import LLMResult, ToolCall
 
 
 class SimpleAgentLoop:
@@ -24,8 +24,6 @@ class SimpleAgentLoop:
 
             if submission.type == "user_input":
                 await self.run_turn(submission.text)
-            elif submission.type == "approval":
-                await self.handle_approval(submission.approvals)
             elif submission.type == "undo":
                 self.session.context.undo_last_turn()
                 await self.session.emit("undo_complete", {})
@@ -65,15 +63,7 @@ class SimpleAgentLoop:
 
             self.session.context.add_assistant_tool_calls(llm_result)
 
-            auto_tools, approval_tools = self.split_by_approval(llm_result.tool_calls)
-
-            if auto_tools:
-                await self.execute_tools(auto_tools)
-
-            if approval_tools:
-                self.session.pending_approval = approval_tools
-                await self.emit_approval_required(approval_tools)
-                return None
+            await self.execute_tools(llm_result.tool_calls)
 
         await self.session.emit("turn_complete", {"final_response": final_response})
         return final_response
@@ -144,86 +134,6 @@ class SimpleAgentLoop:
             tool_call_id=tool_call.id,
         )
 
-    def split_by_approval(
-        self,
-        tool_calls: list[ToolCall],
-    ) -> tuple[list[ToolCall], list[ToolCall]]:
-        auto_tools = []
-        approval_tools = []
-
-        for tool_call in tool_calls:
-            if self.needs_approval(tool_call):
-                approval_tools.append(tool_call)
-            else:
-                auto_tools.append(tool_call)
-
-        return auto_tools, approval_tools
-
-    def needs_approval(self, tool_call: ToolCall) -> bool:
-        if tool_call.name == "sandbox_create":
-            return tool_call.args.get("hardware") != "cpu-basic"
-
-        if tool_call.name == "hf_jobs":
-            return tool_call.args.get("operation") in {"run", "uv", "schedule"}
-
-        if tool_call.name in {"hf_repo_files", "hf_repo_git"}:
-            return tool_call.args.get("operation") in {
-                "upload",
-                "delete",
-                "merge_pr",
-                "delete_branch",
-                "create_repo",
-            }
-
-        return False
-
-    async def handle_approval(self, approvals: list[JsonObject]) -> None:
-        pending: list[ToolCall] = self.session.pending_approval or []
-        self.session.pending_approval = None
-
-        approved_ids = {
-            approval["tool_call_id"]
-            for approval in approvals
-            if approval.get("approved")
-        }
-
-        approved_tools = []
-        for tool_call in pending:
-            if tool_call.id in approved_ids:
-                approved_tools.append(tool_call)
-            else:
-                self.session.context.add_tool_result(
-                    tool_call.id,
-                    tool_call.name,
-                    "Tool call rejected by user",
-                    success=False,
-                )
-                await self.emit_tool_output(
-                    tool_call,
-                    "Tool call rejected by user",
-                    False,
-                )
-
-        if approved_tools:
-            await self.execute_tools(approved_tools)
-
-        # Continue the model loop with the new tool results.
-        await self.run_turn(None)
-
-    async def emit_approval_required(self, approval_tools: list[ToolCall]) -> None:
-        await self.session.emit(
-            "approval_required",
-            {
-                "tools": [
-                    {
-                        "id": tool.id,
-                        "tool": tool.name,
-                        "arguments": tool.args,
-                    }
-                    for tool in approval_tools
-                ]
-            },
-        )
 
     async def emit_tool_output(
         self,

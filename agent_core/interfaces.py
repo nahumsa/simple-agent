@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Protocol
 
 from agent_core.config import AgentConfig
-from agent_core.types import ChatTurnResult, JsonObject, LLMResponse, LLMResult, ToolCall, ToolSpec
+from agent_core.types import ChatTurnResult, JsonObject, LLMResponse, LLMResult, ToolSpec
 
 
 class Context(Protocol):
@@ -56,7 +56,6 @@ class AgentSession(Protocol):
     llm: LLM
     running: bool
     cancelled: bool
-    pending_approval: list[ToolCall] | None
 
     async def emit(self, event: str, payload: JsonObject) -> None: ...
     async def save(self) -> None: ...
