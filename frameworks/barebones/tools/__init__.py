@@ -9,11 +9,15 @@ from frameworks.barebones.tools.markdown_search import (
     SearchResult,
 )
 from frameworks.barebones.tools.no_tools import NoTools
+from frameworks.barebones.tools.url_fetch import FetchedURL, URLFetchError, fetch_url
 
 __all__ = [
     "ChallengeDataTools",
     "DuckDBFTSMarkdownSearch",
     "MarkdownSearchError",
+    "FetchedURL",
     "NoTools",
     "SearchResult",
+    "URLFetchError",
+    "fetch_url",
 ]

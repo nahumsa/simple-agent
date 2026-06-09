@@ -11,6 +11,7 @@ from frameworks.barebones.tools.markdown_search import (
     DuckDBFTSMarkdownSearch,
     MarkdownSearchError,
 )
+from frameworks.barebones.tools.url_fetch import FETCH_URL_SPEC, call_fetch_url
 
 
 class ChallengeDataTools:
@@ -105,6 +106,7 @@ class ChallengeDataTools:
                     },
                 },
             },
+            FETCH_URL_SPEC,
         ]
 
     async def call(
@@ -140,6 +142,9 @@ class ChallengeDataTools:
                 {"query": query, "results": [asdict(result) for result in results]},
                 indent=2,
             ), True
+
+        if name == "fetch_url":
+            return call_fetch_url(args)
 
         return f"Unknown tool: {name}", False
 

@@ -22,12 +22,13 @@ There are some patterns which are heavily inspired by [ml-intern](https://github
 - Chat with a local Ollama model, OpenAI, or an OpenAI-compatible endpoint.
 - Answer questions about the Coding Challenges dataset in `data/extracted_data/`.
 - Let the model browse and full-text search challenge markdown files through safe read-only tools.
+- Let the model fetch public HTTP(S) URLs when external context is needed.
 - Keep conversation history in memory during the current terminal session.
 - Detect repeated tool-call loops and nudge the model to try a different approach.
 - Run without an API key in `echo` mode for a quick smoke test.
 
-The tools are deliberately limited: the agent can only read markdown files from `data/extracted_data/`.
-It cannot edit files, run shell commands, or read arbitrary paths on your machine.
+The tools are deliberately limited: the agent can read markdown files from `data/extracted_data/` and fetch public HTTP(S) URLs only.
+It refuses local/private network URLs and cannot edit files, run shell commands, or read arbitrary paths on your machine.
 
 ---
 
@@ -192,6 +193,7 @@ When the model needs details, it can call the built-in tools:
 - `read_challenge_index` reads `data/extracted_data/index.md`.
 - `search_challenges` full-text searches the markdown files with DuckDB's FTS extension.
 - `read_file` reads a specific markdown file from `data/extracted_data/`, for example `001-challenge-wc.md`.
+- `fetch_url` fetches a public HTTP(S) URL and returns text content, with local/private network URLs refused.
 
 The CLI prints final assistant messages directly. Tool output is stored in the conversation context so the model can use it in the next step.
 
