@@ -1,12 +1,24 @@
-"""Doom-loop detection for repeated tool-call patterns.
+"""Doom-loop detection for repeated tool-call and chat patterns.
 This was based on https://github.com/huggingface/ml-intern/tree/main"""
 
 from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Callable
+from dataclasses import dataclass
 
 from agent_core.types import JsonObject, ToolCallSignature
+
+DoomLoopDetector = Callable[[list[JsonObject]], str | None]
+
+
+@dataclass(frozen=True)
+class ChatMessageSignature:
+    """Stable signature for a conversational message."""
+
+    role: str
+    content_hash: str
 
 
 def normalize_jsonish(value: str) -> str:
@@ -105,6 +117,55 @@ def detect_identical_consecutive(
     return None
 
 
+def extract_recent_chat_signatures(
+    messages: list[JsonObject],
+    *,
+    role: str,
+    lookback: int = 30,
+) -> list[ChatMessageSignature]:
+    """Extract recent non-tool-call chat messages for repetition checks."""
+    signatures: list[ChatMessageSignature] = []
+
+    for message in messages[-lookback:]:
+        if message.get("role") != role:
+            continue
+        if message.get("tool_calls"):
+            continue
+
+        content = message.get("content")
+        if not isinstance(content, str) or not content.strip():
+            continue
+
+        signatures.append(
+            ChatMessageSignature(role=role, content_hash=short_hash(content.strip()))
+        )
+
+    return signatures
+
+
+def detect_repeated_chat_message(
+    messages: list[JsonObject],
+    *,
+    role: str,
+    threshold: int = 3,
+) -> bool:
+    """Detect the same user or assistant chat message repeated recently."""
+    signatures = extract_recent_chat_signatures(messages, role=role)
+    if len(signatures) < threshold:
+        return False
+
+    count = 1
+    for current, previous in zip(signatures[1:], signatures[:-1]):
+        if current == previous:
+            count += 1
+            if count >= threshold:
+                return True
+        else:
+            count = 1
+
+    return False
+
+
 def detect_repeating_sequence(
     signatures: list[ToolCallSignature],
     min_sequence_len: int = 2,
@@ -131,28 +192,75 @@ def detect_repeating_sequence(
     return None
 
 
-def check_for_doom_loop(messages: list[JsonObject]) -> str | None:
-    """Return a corrective prompt if recent tool use looks stuck."""
-    signatures = extract_recent_tool_signatures(messages)
-    if len(signatures) < 3:
+def check_repeated_user_messages(messages: list[JsonObject]) -> str | None:
+    """Return a corrective prompt when the user repeats the same message."""
+    if not detect_repeated_chat_message(messages, role="user"):
         return None
 
-    repeated_tool = detect_identical_consecutive(signatures)
-    if repeated_tool:
-        return (
-            f"[SYSTEM: REPETITION GUARD] You have called '{repeated_tool}' "
-            "with the same arguments multiple times and received the same result. "
-            "Stop repeating this approach. Try a different tool, different arguments, "
-            "or explain what you are stuck on and ask the user for guidance."
-        )
+    return (
+        "[SYSTEM: REPETITION GUARD] The user has repeated the same message "
+        "multiple times. Do not repeat the same answer. Acknowledge the repetition, "
+        "take a different approach, and ask a clarifying question if needed."
+    )
 
-    repeating_pattern = detect_repeating_sequence(signatures)
-    if repeating_pattern:
-        pattern = " -> ".join(signature.name for signature in repeating_pattern)
-        return (
-            "[SYSTEM: REPETITION GUARD] You are stuck in a repeating cycle of "
-            f"tool calls: [{pattern}]. Stop this cycle and try a fundamentally "
-            "different approach."
-        )
+
+def check_repeated_assistant_messages(messages: list[JsonObject]) -> str | None:
+    """Return a corrective prompt when the assistant repeats the same response."""
+    if not detect_repeated_chat_message(messages, role="assistant"):
+        return None
+
+    return (
+        "[SYSTEM: REPETITION GUARD] You have repeated the same response multiple "
+        "times. Stop repeating yourself. Provide a materially different answer, "
+        "summarize what is blocking progress, or ask the user for clarification."
+    )
+
+
+def check_repeated_tool_calls(messages: list[JsonObject]) -> str | None:
+    """Return a corrective prompt for identical repeated tool calls."""
+    repeated_tool = detect_identical_consecutive(
+        extract_recent_tool_signatures(messages)
+    )
+    if not repeated_tool:
+        return None
+
+    return (
+        f"[SYSTEM: REPETITION GUARD] You have called '{repeated_tool}' "
+        "with the same arguments multiple times and received the same result. "
+        "Stop repeating this approach. Try a different tool, different arguments, "
+        "or explain what you are stuck on and ask the user for guidance."
+    )
+
+
+def check_repeating_tool_sequence(messages: list[JsonObject]) -> str | None:
+    """Return a corrective prompt for repeating tool-call sequences."""
+    repeating_pattern = detect_repeating_sequence(
+        extract_recent_tool_signatures(messages)
+    )
+    if not repeating_pattern:
+        return None
+
+    pattern = " -> ".join(signature.name for signature in repeating_pattern)
+    return (
+        "[SYSTEM: REPETITION GUARD] You are stuck in a repeating cycle of "
+        f"tool calls: [{pattern}]. Stop this cycle and try a fundamentally "
+        "different approach."
+    )
+
+
+DOOM_LOOP_DETECTORS: tuple[DoomLoopDetector, ...] = (
+    check_repeated_user_messages,
+    check_repeated_assistant_messages,
+    check_repeated_tool_calls,
+    check_repeating_tool_sequence,
+)
+
+
+def check_for_doom_loop(messages: list[JsonObject]) -> str | None:
+    """Return a corrective prompt if recent tool use or chat looks stuck."""
+    for detector in DOOM_LOOP_DETECTORS:
+        prompt = detector(messages)
+        if prompt:
+            return prompt
 
     return None
