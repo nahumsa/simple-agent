@@ -15,30 +15,6 @@ from agent_core.types import JsonObject, LLMResponse, RawLLMToolCall, ToolSpec
 logger = logging.getLogger(__name__)
 
 
-class EchoLLM:
-    """Dependency-free fallback LLM used when no OpenAI API key is provided."""
-
-    async def complete(
-        self,
-        *,
-        messages: list[JsonObject],
-        tools: list[ToolSpec],
-    ) -> LLMResponse:
-        _debug_json("LLM request messages", messages)
-        _debug_json("LLM request tools", tools)
-        last_user = next(
-            (
-                str(message["content"])
-                for message in reversed(messages)
-                if message["role"] == "user"
-            ),
-            "",
-        )
-        response = LLMResponse(content=f"Echo: {last_user}", tool_calls=[])
-        _debug_json("LLM response", {"content": response.content, "tool_calls": response.tool_calls})
-        return response
-
-
 class OpenAIChatLLM:
     """Minimal OpenAI-compatible chat client using only the standard library."""
 
@@ -167,9 +143,6 @@ def _to_tool_call(call: Mapping[str, object]) -> RawLLMToolCall:
 def build_llm(config: LLMConfig) -> LLM:
     provider = config.provider
 
-    if provider == "echo":
-        return EchoLLM()
-
     if provider == "ollama":
         return OpenAIChatLLM(
             api_key=config.api_key or "ollama",
@@ -180,7 +153,9 @@ def build_llm(config: LLMConfig) -> LLM:
 
     api_key = config.resolved_api_key
     if not api_key:
-        return EchoLLM()
+        raise RuntimeError(
+            "OpenAI provider requires an API key. Set LLM_API_KEY or OPENAI_API_KEY."
+        )
 
     return OpenAIChatLLM(
         api_key=api_key,
