@@ -20,6 +20,16 @@ def test_tool_call_parser_preserves_gemini_thought_signature() -> None:
     assert parsed.arguments == '{"path":"071-challenge-wheel.md"}'
 
 
+def test_tool_call_parser_treats_none_fields_as_missing() -> None:
+    parsed = _to_tool_call(
+        {"id": None, "function": {"name": None, "arguments": None}}
+    )
+
+    assert parsed.id == ""
+    assert parsed.name == ""
+    assert parsed.arguments == "{}"
+
+
 def test_assistant_tool_call_history_replays_gemini_thought_signature() -> None:
     context = InMemoryContext()
     context.add_assistant_tool_calls(

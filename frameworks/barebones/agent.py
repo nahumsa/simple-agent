@@ -1,13 +1,24 @@
-"""Barebones chat framework adapter."""
+"""Barebones chat framework adapter and composition root."""
 
 from __future__ import annotations
+
+from dataclasses import dataclass
 
 from agent_core.config import AgentConfig, AppConfig
 from agent_core.types import ChatTurnResult
 from frameworks.barebones.llms import build_llm
 from frameworks.barebones.loop import SimpleAgentLoop
 from frameworks.barebones.session import CliSession
-from frameworks.barebones.tools import ChallengeDataTools
+from frameworks.barebones.tools import ChallengeDataTools, LoggingTools
+
+
+@dataclass(frozen=True)
+class BarebonesComponents:
+    """Objects composed to run the barebones framework."""
+
+    tools: ChallengeDataTools
+    session: CliSession
+    loop: SimpleAgentLoop
 
 
 class BarebonesChatFramework:
@@ -15,22 +26,38 @@ class BarebonesChatFramework:
 
     framework = "barebones"
 
-    def __init__(self, config: AppConfig) -> None:
+    def __init__(
+        self,
+        config: AppConfig,
+        components: BarebonesComponents | None = None,
+    ) -> None:
         self.config = config
-        self.tools = ChallengeDataTools()
-        agent_config = _agent_config_with_challenge_context(config.agent, self.tools)
-        self.loop = SimpleAgentLoop(
-            CliSession(
-                build_llm(config.llm),
-                agent_config,
-                tools=self.tools,
-                emit_messages=False,
-            )
-        )
+        self.components = components or build_barebones_components(config)
+        self.tools = self.components.tools
+        self.loop = self.components.loop
 
     async def run_turn(self, user_text: str) -> ChatTurnResult:
         content = await self.loop.run_turn(user_text)
         return ChatTurnResult(content=content or "", framework=self.framework)
+
+
+def build_barebones_framework(config: AppConfig) -> BarebonesChatFramework:
+    """Build the barebones chat framework from explicit components."""
+    return BarebonesChatFramework(config, build_barebones_components(config))
+
+
+def build_barebones_components(config: AppConfig) -> BarebonesComponents:
+    """Composition root for the barebones framework."""
+    tools = ChallengeDataTools()
+    agent_config = _agent_config_with_challenge_context(config.agent, tools)
+    session = CliSession(
+        build_llm(config.llm),
+        agent_config,
+        tools=LoggingTools(tools),
+        emit_messages=False,
+    )
+    loop = SimpleAgentLoop(session)
+    return BarebonesComponents(tools=tools, session=session, loop=loop)
 
 
 def _agent_config_with_challenge_context(

@@ -6,10 +6,10 @@ import os
 from dataclasses import dataclass, field
 from typing import Literal, Mapping, cast
 
-Provider = Literal["ollama", "openai", "echo"]
+Provider = Literal["ollama", "openai"]
 Framework = Literal["barebones", "langchain", "pydantic-ai"]
 
-PROVIDER_CHOICES: tuple[Provider, ...] = ("ollama", "openai", "echo")
+PROVIDER_CHOICES: tuple[Provider, ...] = ("ollama", "openai")
 FRAMEWORK_CHOICES: tuple[Framework, ...] = ("barebones", "langchain", "pydantic-ai")
 DEFAULT_FRAMEWORK: Framework = "barebones"
 DEFAULT_PROVIDER: Provider = "ollama"

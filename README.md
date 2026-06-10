@@ -25,7 +25,6 @@ There are some patterns which are heavily inspired by [ml-intern](https://github
 - Let the model fetch public HTTP(S) URLs when external context is needed.
 - Keep conversation history in memory during the current terminal session.
 - Detect repeated tool-call loops and nudge the model to try a different approach.
-- Run without an API key in `echo` mode for a quick smoke test.
 
 The tools are deliberately limited: the agent can read markdown files from `data/extracted_data/` and fetch public HTTP(S) URLs only.
 It refuses local/private network URLs and cannot edit files, run shell commands, or read arbitrary paths on your machine.
@@ -41,31 +40,24 @@ It refuses local/private network URLs and cannot edit files, run shell commands,
   - an OpenAI API key, or
   - any OpenAI-compatible chat completions server (gemini, for instance)
 
-The runtime code only uses the Python standard library. `uv` is still recommended because it installs the dev tools used by this repository: `pytest`, `ruff`, and `mypy`.
+The LLM client uses the Python standard library; challenge search and URL fetching use the project dependencies installed by `uv`.
 
 ---
 
 ## Quick start
 
-From the project root:
+With Ollama running, from the project root:
 
 ```bash
 uv sync --dev
-uv run python main.py --provider echo
+uv run python main.py
 ```
 
 You should see:
 
 ```text
-Chat started with echo:gemma4:latest. Type /exit or /quit to stop.
+Chat started with ollama:gemma4:latest. Type /exit or /quit to stop.
 you:
-```
-
-Type a message:
-
-```text
-you: hello
-assistant: Echo: hello
 ```
 
 Exit with either command:
@@ -79,8 +71,6 @@ or
 ```text
 /quit
 ```
-
-`echo` mode is only a startup test. It does not call an actual model and it does not use the challenge-reading tools. To run the real agent, use Ollama or OpenAI as shown below.
 
 ---
 
@@ -213,7 +203,7 @@ Common options:
 
 | Option | What it does | Default |
 | --- | --- | --- |
-| `--provider` | LLM provider: `ollama`, `openai`, or `echo` | `ollama` |
+| `--provider` | LLM provider: `ollama` or `openai` | `ollama` |
 | `--model` | Chat model name | `gemma4:latest` |
 | `--base-url` | OpenAI-compatible API base URL | `http://localhost:11434/v1` |
 | `--api-key` | API key for OpenAI-compatible providers | unset |
@@ -225,7 +215,7 @@ You can also configure the agent with environment variables:
 
 | Environment variable | Purpose |
 | --- | --- |
-| `LLM_PROVIDER` | `ollama`, `openai`, or `echo` |
+| `LLM_PROVIDER` | `ollama` or `openai` |
 | `LLM_MODEL` | Model name |
 | `LLM_BASE_URL` | OpenAI-compatible base URL |
 | `LLM_API_KEY` | API key used by the LLM client |
