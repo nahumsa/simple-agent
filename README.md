@@ -25,6 +25,7 @@ There are some patterns which are heavily inspired by [ml-intern](https://github
 - Let the model fetch public HTTP(S) URLs when external context is needed.
 - Keep conversation history in memory during the current terminal session.
 - Detect repeated tool-call loops and nudge the model to try a different approach.
+
 The tools are deliberately limited: the agent can read markdown files from `data/extracted_data/` and fetch public HTTP(S) URLs only.
 It refuses local/private network URLs and cannot edit files, run shell commands, or read arbitrary paths on your machine.
 
