@@ -5,7 +5,14 @@ from __future__ import annotations
 from typing import Protocol
 
 from agent_core.config import AgentConfig
-from agent_core.types import ChatTurnResult, JsonObject, LLMResponse, LLMResult, ToolSpec
+from agent_core.types import (
+    AgentState,
+    ChatTurnResult,
+    JsonObject,
+    LLMResponse,
+    LLMResult,
+    ToolSpec,
+)
 
 
 class Context(Protocol):
@@ -49,11 +56,16 @@ class LLM(Protocol):
     ) -> LLMResponse: ...
 
 
+class EventSink(Protocol):
+    async def handle(self, event: str, payload: JsonObject) -> None: ...
+
+
 class AgentSession(Protocol):
     config: AgentConfig
     context: Context
     tools: Tools
     llm: LLM
+    state: AgentState
     running: bool
     cancelled: bool
 

@@ -4,17 +4,30 @@ from __future__ import annotations
 
 import asyncio
 import json
+from collections.abc import Sequence
 
-from frameworks.barebones.doom_loop import check_for_doom_loop
 from agent_core.interfaces import AgentSession
-from agent_core.types import LLMResult, ToolCall
+from agent_core.types import AgentState, LLMResult, ToolCall
+from frameworks.barebones.middleware import (
+    AgentMiddleware,
+    ContextCompactionMiddleware,
+    DoomLoopGuardMiddleware,
+)
 
 
 class SimpleAgentLoop:
     """Small orchestration loop for a tool-using LLM agent."""
 
-    def __init__(self, session: AgentSession):
+    def __init__(
+        self,
+        session: AgentSession,
+        middleware: Sequence[AgentMiddleware] | None = None,
+    ) -> None:
         self.session = session
+        self.middleware = list(middleware) if middleware is not None else [
+            ContextCompactionMiddleware(),
+            DoomLoopGuardMiddleware(),
+        ]
 
     async def run(self, submission_queue: asyncio.Queue) -> None:
         await self.session.emit("ready", {"message": "Agent ready"})
@@ -34,6 +47,9 @@ class SimpleAgentLoop:
                 await self.session.emit("error", {"error": "Unknown submission type"})
 
     async def run_turn(self, user_text: str | None = None) -> str | None:
+        if hasattr(self.session, "state"):
+            self.session.state = AgentState.RUNNING_TURN
+
         if user_text:
             self.session.context.add_user_message(user_text)
 
@@ -44,10 +60,9 @@ class SimpleAgentLoop:
                 await self.cleanup_after_cancel()
                 return None
 
-            await self.compact_if_needed()
-            await self.inject_doom_loop_prompt_if_needed()
-
+            await self.before_llm_call()
             llm_result = await self.call_llm()
+            await self.after_llm_call(llm_result)
 
             if llm_result.content:
                 await self.session.emit(
@@ -65,6 +80,8 @@ class SimpleAgentLoop:
 
             await self.execute_tools(llm_result.tool_calls)
 
+        if hasattr(self.session, "state"):
+            self.session.state = AgentState.READY
         await self.session.emit("turn_complete", {"final_response": final_response})
         return final_response
 
@@ -117,8 +134,10 @@ class SimpleAgentLoop:
                 success=success,
             )
             await self.emit_tool_output(tool_call, output, success)
+            await self.after_tool_call(tool_call, output, success)
 
     async def execute_one_tool(self, tool_call: ToolCall) -> tuple[str, bool]:
+        await self.before_tool_call(tool_call)
         await self.session.emit(
             "tool_call",
             {
@@ -133,7 +152,6 @@ class SimpleAgentLoop:
             session=self.session,
             tool_call_id=tool_call.id,
         )
-
 
     async def emit_tool_output(
         self,
@@ -151,26 +169,42 @@ class SimpleAgentLoop:
             },
         )
 
-    async def inject_doom_loop_prompt_if_needed(self) -> None:
-        doom_prompt = check_for_doom_loop(self.session.context.messages())
-        if not doom_prompt:
-            return
+    async def before_llm_call(self) -> None:
+        for middleware in self.middleware:
+            await middleware.before_llm_call(self.session)
 
-        self.session.context.add_user_message(doom_prompt)
-        await self.session.emit(
-            "tool_log",
-            {"tool": "system", "log": "Repetition guard activated."},
-        )
+    async def after_llm_call(self, result: LLMResult) -> None:
+        for middleware in self.middleware:
+            await middleware.after_llm_call(self.session, result)
+
+    async def before_tool_call(self, tool_call: ToolCall) -> None:
+        for middleware in self.middleware:
+            await middleware.before_tool_call(self.session, tool_call)
+
+    async def after_tool_call(
+        self,
+        tool_call: ToolCall,
+        output: str,
+        success: bool,
+    ) -> None:
+        for middleware in self.middleware:
+            await middleware.after_tool_call(self.session, tool_call, output, success)
+
+    async def inject_doom_loop_prompt_if_needed(self) -> None:
+        await DoomLoopGuardMiddleware().before_llm_call(self.session)
 
     async def compact_if_needed(self) -> None:
-        if self.session.context.needs_compaction:
-            await self.session.context.compact()
+        await ContextCompactionMiddleware().before_llm_call(self.session)
 
     async def cleanup_after_cancel(self) -> None:
         await self.session.tools.cancel_running()
         await self.session.emit("interrupted", {})
+        if hasattr(self.session, "state"):
+            self.session.state = AgentState.READY
 
     async def shutdown(self) -> None:
+        if hasattr(self.session, "state"):
+            self.session.state = AgentState.SHUTTING_DOWN
         self.session.running = False
         await self.session.save()
         await self.session.emit("shutdown", {})
