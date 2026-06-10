@@ -60,15 +60,20 @@ class TimeoutTools:
         session: object,
         tool_call_id: str,
     ) -> tuple[str, bool]:
-        return await asyncio.wait_for(
-            self.inner.call(
-                name,
-                args,
-                session=session,
-                tool_call_id=tool_call_id,
-            ),
-            timeout=self.timeout_seconds,
-        )
+        try:
+            return await asyncio.wait_for(
+                self.inner.call(
+                    name,
+                    args,
+                    session=session,
+                    tool_call_id=tool_call_id,
+                ),
+                timeout=self.timeout_seconds,
+            )
+        except asyncio.TimeoutError:
+            message = f"Tool {name} timed out after {self.timeout_seconds}s"
+            logger.warning(message)
+            return message, False
 
     async def cancel_running(self) -> None:
         await self.inner.cancel_running()

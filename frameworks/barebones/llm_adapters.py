@@ -120,11 +120,14 @@ def to_openai_tool_call(call: JsonObject) -> JsonObject:
 
 
 def to_tool_call(call: Mapping[str, object]) -> RawLLMToolCall:
+    id_val = call.get("id")
     function = call.get("function", {})
-    function_data = function if isinstance(function, dict) else {}
+    function_data = function if isinstance(function, Mapping) else {}
+    name_val = function_data.get("name")
+    arguments_val = function_data.get("arguments")
     return RawLLMToolCall(
-        id=str(call.get("id", "")),
-        name=str(function_data.get("name", "")),
-        arguments=str(function_data.get("arguments", "{}")),
+        id="" if id_val is None else str(id_val),
+        name="" if name_val is None else str(name_val),
+        arguments="{}" if arguments_val is None else str(arguments_val),
         extra_content=cast(JsonObject | None, call.get("extra_content")),
     )

@@ -47,8 +47,7 @@ class SimpleAgentLoop:
                 await self.session.emit("error", {"error": "Unknown submission type"})
 
     async def run_turn(self, user_text: str | None = None) -> str | None:
-        if hasattr(self.session, "state"):
-            self.session.state = AgentState.RUNNING_TURN
+        self.session.state = AgentState.RUNNING_TURN
 
         if user_text:
             self.session.context.add_user_message(user_text)
@@ -80,8 +79,7 @@ class SimpleAgentLoop:
 
             await self.execute_tools(llm_result.tool_calls)
 
-        if hasattr(self.session, "state"):
-            self.session.state = AgentState.READY
+        self.session.state = AgentState.READY
         await self.session.emit("turn_complete", {"final_response": final_response})
         return final_response
 
@@ -191,20 +189,22 @@ class SimpleAgentLoop:
             await middleware.after_tool_call(self.session, tool_call, output, success)
 
     async def inject_doom_loop_prompt_if_needed(self) -> None:
-        await DoomLoopGuardMiddleware().before_llm_call(self.session)
+        for middleware in self.middleware:
+            if isinstance(middleware, DoomLoopGuardMiddleware):
+                await middleware.before_llm_call(self.session)
 
     async def compact_if_needed(self) -> None:
-        await ContextCompactionMiddleware().before_llm_call(self.session)
+        for middleware in self.middleware:
+            if isinstance(middleware, ContextCompactionMiddleware):
+                await middleware.before_llm_call(self.session)
 
     async def cleanup_after_cancel(self) -> None:
         await self.session.tools.cancel_running()
         await self.session.emit("interrupted", {})
-        if hasattr(self.session, "state"):
-            self.session.state = AgentState.READY
+        self.session.state = AgentState.READY
 
     async def shutdown(self) -> None:
-        if hasattr(self.session, "state"):
-            self.session.state = AgentState.SHUTTING_DOWN
+        self.session.state = AgentState.SHUTTING_DOWN
         self.session.running = False
         await self.session.save()
         await self.session.emit("shutdown", {})

@@ -13,6 +13,6 @@ class ConsoleEventSink:
 
     async def handle(self, event: str, payload: JsonObject) -> None:
         if event == "assistant_message" and self.emit_assistant_messages:
-            print(f"assistant: {payload['content']}")
+            print(f"assistant: {payload.get('content', '<no content>')}")
         elif event in {"error", "tool_output", "approval_required", "interrupted"}:
             print(f"[{event}] {payload}")
