@@ -60,10 +60,9 @@ class ToolCallSignature:
 
 @dataclass(frozen=True)
 class ChatTurnResult:
-    """Framework-neutral result for one chat turn."""
+    """Result for one chat turn."""
 
     content: str
-    framework: str
     iterations: int | None = None
     tool_calls: list[ToolCall] = field(default_factory=list)
     raw: object | None = None

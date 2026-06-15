@@ -1,4 +1,4 @@
-"""Barebones chat framework adapter and composition root."""
+"""Barebones chat agent adapter and composition root."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from frameworks.barebones.tools import ChallengeDataTools, LoggingTools
 
 @dataclass(frozen=True)
 class BarebonesComponents:
-    """Objects composed to run the barebones framework."""
+    """Objects composed to run the barebones agent."""
 
     tools: ChallengeDataTools
     session: CliSession
@@ -22,9 +22,7 @@ class BarebonesComponents:
 
 
 class BarebonesChatFramework:
-    """Adapter exposing the hand-written loop through the shared framework contract."""
-
-    framework = "barebones"
+    """Adapter exposing the hand-written loop through the shared agent contract."""
 
     def __init__(
         self,
@@ -38,16 +36,16 @@ class BarebonesChatFramework:
 
     async def run_turn(self, user_text: str) -> ChatTurnResult:
         content = await self.loop.run_turn(user_text)
-        return ChatTurnResult(content=content or "", framework=self.framework)
+        return ChatTurnResult(content=content or "")
 
 
 def build_barebones_framework(config: AppConfig) -> BarebonesChatFramework:
-    """Build the barebones chat framework from explicit components."""
+    """Build the barebones chat agent from explicit components."""
     return BarebonesChatFramework(config, build_barebones_components(config))
 
 
 def build_barebones_components(config: AppConfig) -> BarebonesComponents:
-    """Composition root for the barebones framework."""
+    """Composition root for the barebones agent."""
     tools = ChallengeDataTools()
     agent_config = _agent_config_with_challenge_context(config.agent, tools)
     session = CliSession(

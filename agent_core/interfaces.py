@@ -73,5 +73,5 @@ class AgentSession(Protocol):
     async def save(self) -> None: ...
 
 
-class ChatFramework(Protocol):
+class ChatAgent(Protocol):
     async def run_turn(self, user_text: str) -> ChatTurnResult: ...

@@ -12,12 +12,10 @@ from agent_core.config import (
     AgentConfig,
     AppConfig,
     DEFAULT_BASE_URL,
-    DEFAULT_FRAMEWORK,
     DEFAULT_MAX_ITERATIONS,
     DEFAULT_MODEL,
     DEFAULT_PROVIDER,
     DEFAULT_SYSTEM_PROMPT_FILE,
-    FRAMEWORK_CHOICES,
     LLM_API_KEY_ENV,
     LLM_BASE_URL_ENV,
     LLM_MODEL_ENV,
@@ -28,7 +26,7 @@ from agent_core.config import (
     PROVIDER_CHOICES,
     SYSTEM_PROMPT_FILE_ENV,
 )
-from agent_core.framework_factory import build_chat_framework
+from agent_core.framework_factory import build_chat_agent
 
 
 def read_system_prompt(path: str | None) -> str | None:
@@ -68,10 +66,10 @@ def config_from_args(args: argparse.Namespace) -> AppConfig:
 
 async def chat(args: argparse.Namespace) -> None:
     config = config_from_args(args)
-    agent = build_chat_framework(args.framework, config)
+    agent = build_chat_agent(config)
     print(
-        f"Chat started with {args.framework} using "
-        f"{config.llm.provider}:{config.llm.model}. Type /exit or /quit to stop."
+        f"Chat started with {config.llm.provider}:{config.llm.model}. "
+        "Type /exit or /quit to stop."
     )
 
     while True:
@@ -93,12 +91,6 @@ async def chat(args: argparse.Namespace) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Chat with the simple agent.")
-    parser.add_argument(
-        "--framework",
-        choices=FRAMEWORK_CHOICES,
-        default=DEFAULT_FRAMEWORK,
-        help=f"Agent framework to use. Defaults to {DEFAULT_FRAMEWORK}.",
-    )
     parser.add_argument(
         "--provider",
         choices=PROVIDER_CHOICES,

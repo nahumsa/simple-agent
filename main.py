@@ -1,8 +1,4 @@
-"""Thin CLI entrypoint for the educational chatbot.
-
-Core framework-neutral code lives in ``agent_core``. Framework-specific
-implementations live under ``frameworks``.
-"""
+"""Thin CLI entrypoint for the educational chatbot."""
 
 from cli import main
 

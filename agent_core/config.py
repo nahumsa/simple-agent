@@ -7,11 +7,8 @@ from dataclasses import dataclass, field
 from typing import Literal, Mapping, cast
 
 Provider = Literal["ollama", "openai"]
-Framework = Literal["barebones", "langchain", "pydantic-ai"]
 
 PROVIDER_CHOICES: tuple[Provider, ...] = ("ollama", "openai")
-FRAMEWORK_CHOICES: tuple[Framework, ...] = ("barebones", "langchain", "pydantic-ai")
-DEFAULT_FRAMEWORK: Framework = "barebones"
 DEFAULT_PROVIDER: Provider = "ollama"
 DEFAULT_MODEL = "gemma4:latest"
 DEFAULT_BASE_URL = "http://localhost:11434/v1"
