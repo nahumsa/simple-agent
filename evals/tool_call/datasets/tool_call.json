@@ -1,0 +1,304 @@
+[
+  {
+    "id": "index-beginner-cli-roundup",
+    "user_prompt": "Using the available tools, find a few beginner Coding Challenges that are command-line utilities and name at least three of them.",
+    "expected_tool_calls": [
+      "read_challenge_index"
+    ],
+    "expected_final_contains": [
+      "beginner"
+    ]
+  },
+  {
+    "id": "index-networking-options",
+    "user_prompt": "Use the tools to browse the challenge index and suggest intermediate networking-related challenges I could build.",
+    "expected_tool_calls": [
+      "read_challenge_index"
+    ],
+    "expected_final_contains": [
+      "intermediate"
+    ]
+  },
+  {
+    "id": "index-games-list",
+    "user_prompt": "Please check the Coding Challenges index with a tool and list some game projects from it.",
+    "expected_tool_calls": [
+      "read_challenge_index"
+    ],
+    "expected_final_contains": [
+      "game"
+    ]
+  },
+  {
+    "id": "search-concepts-compression",
+    "user_prompt": "I want a challenge about Huffman coding and file compression. Search the challenge data before answering.",
+    "expected_tool_calls": [
+      "search_challenges"
+    ],
+    "expected_final_contains": [
+      "compression"
+    ]
+  },
+  {
+    "id": "search-concepts-recursive-dns",
+    "user_prompt": "Find the challenge where I implement recursive DNS lookups over UDP. Use the available search tool first.",
+    "expected_tool_calls": [
+      "search_challenges"
+    ],
+    "expected_final_contains": [
+      "DNS"
+    ]
+  },
+  {
+    "id": "search-concepts-bloom-spellcheck",
+    "user_prompt": "Which Coding Challenge teaches a probabilistic data structure for fast spell checking? Use a tool to look it up.",
+    "expected_tool_calls": [
+      "search_challenges"
+    ],
+    "expected_final_contains": [
+      "Bloom"
+    ]
+  },
+  {
+    "id": "search-alias-container-runtime",
+    "user_prompt": "Search for the challenge about namespaces, cgroups, chroot, and pulling images from Docker Hub.",
+    "expected_tool_calls": [
+      "search_challenges"
+    ],
+    "expected_final_contains": [
+      "Docker"
+    ]
+  },
+  {
+    "id": "search-ambiguous-redis-server",
+    "user_prompt": "There seem to be Redis-related challenges. Use search and tell me which one is about building the server itself, not the CLI client.",
+    "expected_tool_calls": [
+      "search_challenges"
+    ],
+    "expected_final_contains": [
+      "Redis Server"
+    ]
+  },
+  {
+    "id": "search-ambiguous-dns-forwarder-vs-resolver",
+    "user_prompt": "Use the search tool to distinguish the DNS resolver challenge from the DNS forwarder challenge, and tell me which one recursively resolves names.",
+    "expected_tool_calls": [
+      "search_challenges"
+    ],
+    "expected_final_contains": [
+      "resolver"
+    ]
+  },
+  {
+    "id": "search-ambiguous-json-jq",
+    "user_prompt": "I do not want jq; I want the challenge about parsing JSON from scratch. Search the challenge files before replying.",
+    "expected_tool_calls": [
+      "search_challenges"
+    ],
+    "expected_final_contains": [
+      "JSON Parser"
+    ]
+  },
+  {
+    "id": "read-exact-cut",
+    "user_prompt": "Read 004-challenge-cut.md with the tool and summarize what the cut clone needs to support.",
+    "expected_tool_calls": [
+      "read_file"
+    ],
+    "expected_final_contains": [
+      "cut"
+    ]
+  },
+  {
+    "id": "read-exact-load-balancer",
+    "user_prompt": "Use read_file on 005-challenge-load-balancer.md and tell me the main behavior I need to implement.",
+    "expected_tool_calls": [
+      "read_file"
+    ],
+    "expected_final_contains": [
+      "load balancer"
+    ]
+  },
+  {
+    "id": "read-exact-git",
+    "user_prompt": "Open 026-challenge-git.md using the available file-reading tool and summarize the core Git features required.",
+    "expected_tool_calls": [
+      "read_file"
+    ],
+    "expected_final_contains": [
+      "git"
+    ]
+  },
+  {
+    "id": "read-exact-yaml",
+    "user_prompt": "Read the YAML parser challenge file, 067-challenge-yaml.md, before explaining what I would build.",
+    "expected_tool_calls": [
+      "read_file"
+    ],
+    "expected_final_contains": [
+      "YAML"
+    ]
+  },
+  {
+    "id": "read-exact-video-chat",
+    "user_prompt": "Use the tools to read 076-challenge-video-chat.md and summarize the technologies involved.",
+    "expected_tool_calls": [
+      "read_file"
+    ],
+    "expected_final_contains": [
+      "WebRTC"
+    ]
+  },
+  {
+    "id": "multi-search-read-nats",
+    "user_prompt": "Find the challenge about a NATS-like message broker, then read its markdown file and summarize the expected protocol work.",
+    "expected_tool_calls": [
+      "search_challenges",
+      "read_file"
+    ],
+    "expected_final_contains": [
+      "NATS"
+    ]
+  },
+  {
+    "id": "multi-search-read-xargs",
+    "user_prompt": "I need the challenge for building commands from standard input. Search for it, read the matching file, then explain it.",
+    "expected_tool_calls": [
+      "search_challenges",
+      "read_file"
+    ],
+    "expected_final_contains": [
+      "xargs"
+    ]
+  },
+  {
+    "id": "multi-search-read-privacy-vault",
+    "user_prompt": "Search for the sensitive-data tokenisation challenge, read the challenge file you find, and give me a short summary.",
+    "expected_tool_calls": [
+      "search_challenges",
+      "read_file"
+    ],
+    "expected_final_contains": [
+      "privacy"
+    ]
+  },
+  {
+    "id": "multi-search-read-static-site-generator",
+    "user_prompt": "Find the project about converting Markdown into a complete HTML website. Use search, then read the file before answering.",
+    "expected_tool_calls": [
+      "search_challenges",
+      "read_file"
+    ],
+    "expected_final_contains": [
+      "static site"
+    ]
+  },
+  {
+    "id": "multi-search-read-uptime-monitoring",
+    "user_prompt": "Search for the website uptime monitoring service challenge and read the relevant markdown before summarizing it.",
+    "expected_tool_calls": [
+      "search_challenges",
+      "read_file"
+    ],
+    "expected_final_contains": [
+      "uptime"
+    ]
+  },
+  {
+    "id": "compare-server-vs-client-memcached",
+    "user_prompt": "Use tools to compare the Memcached server challenge with the Memcached CLI/client challenge and tell me the key difference.",
+    "expected_tool_calls": [
+      "search_challenges"
+    ],
+    "expected_final_contains": [
+      "Memcached"
+    ]
+  },
+  {
+    "id": "compare-load-balancer-vs-load-tester",
+    "user_prompt": "Search the challenge set and explain the difference between building a load balancer and building an HTTP load tester.",
+    "expected_tool_calls": [
+      "search_challenges"
+    ],
+    "expected_final_contains": [
+      "load"
+    ]
+  },
+  {
+    "id": "compare-head-cat-wc",
+    "user_prompt": "Use the challenge tools to compare head, cat, and wc. I want to know which one is best for a first CLI project.",
+    "expected_tool_calls": [
+      "search_challenges"
+    ],
+    "expected_final_contains": [
+      "beginner"
+    ]
+  },
+  {
+    "id": "no-tool-general-advice",
+    "user_prompt": "Without using tools, give me two general tips for choosing a beginner programming project.",
+    "expected_tool_calls": [],
+    "expected_final_contains": [
+      "beginner"
+    ]
+  },
+  {
+    "id": "no-tool-scope-refusal-local-files",
+    "user_prompt": "Can you inspect my home directory and pick a Coding Challenge based on my private files? Do not use tools; just explain what you can and cannot do.",
+    "expected_tool_calls": [],
+    "expected_final_contains": [
+      "cannot"
+    ]
+  },
+  {
+    "id": "search-security-port-scanner",
+    "user_prompt": "Use the search tool to find the project about discovering open ports on network hosts.",
+    "expected_tool_calls": [
+      "search_challenges"
+    ],
+    "expected_final_contains": [
+      "Port Scanner"
+    ]
+  },
+  {
+    "id": "search-text-transform-sed-tr",
+    "user_prompt": "Search for challenges involving text transformation tools like sed or tr and summarize the options.",
+    "expected_tool_calls": [
+      "search_challenges"
+    ],
+    "expected_final_contains": [
+      "sed"
+    ]
+  },
+  {
+    "id": "read-exact-password-manager",
+    "user_prompt": "Please read 058-challenge-password-manager.md with the file tool and summarize the security-sensitive pieces.",
+    "expected_tool_calls": [
+      "read_file"
+    ],
+    "expected_final_contains": [
+      "password"
+    ]
+  },
+  {
+    "id": "multi-search-read-markdown-editor",
+    "user_prompt": "Find the terminal text editor challenge, read its markdown file, and tell me what editor features it asks for.",
+    "expected_tool_calls": [
+      "search_challenges",
+      "read_file"
+    ],
+    "expected_final_contains": [
+      "text editor"
+    ]
+  },
+  {
+    "id": "index-out-of-scope-mobile-apps",
+    "user_prompt": "Use the index tool to check whether this challenge collection has any mobile app projects, and say if the fit looks weak.",
+    "expected_tool_calls": [
+      "read_challenge_index"
+    ],
+    "expected_final_contains": [
+      "mobile"
+    ]
+  }
+]

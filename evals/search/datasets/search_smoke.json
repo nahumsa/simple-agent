@@ -1,0 +1,27 @@
+[
+  {
+    "id": "wc",
+    "query": "word count command line tool count bytes lines words",
+    "expected_paths": ["001-challenge-wc.md"]
+  },
+  {
+    "id": "json-parser",
+    "query": "parse JSON parser tokens grammar",
+    "expected_paths": ["002-challenge-json-parser.md"]
+  },
+  {
+    "id": "url-shortener",
+    "query": "short links URL shortener service",
+    "expected_paths": ["012-challenge-url-shortener.md"]
+  },
+  {
+    "id": "redis",
+    "query": "in memory key value store RESP protocol",
+    "expected_paths": ["008-challenge-redis.md", "037-challenge-redis-cli.md"]
+  },
+  {
+    "id": "dns-resolver",
+    "query": "DNS resolver query records recursive resolver",
+    "expected_paths": ["022-challenge-dns-resolver.md"]
+  }
+]

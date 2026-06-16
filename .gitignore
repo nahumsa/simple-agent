@@ -12,3 +12,7 @@ wheels/
 # Local generated DuckDB search indexes
 data/*.duckdb
 data/*.duckdb.wal
+
+# Generated eval results
+evals/*/results/*.csv
+!evals/*/results/.gitkeep
