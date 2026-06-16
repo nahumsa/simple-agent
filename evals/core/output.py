@@ -9,7 +9,7 @@ from collections.abc import Iterable, Mapping
 from dataclasses import asdict, is_dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 
 def safe_filename_part(value: str) -> str:
@@ -28,7 +28,7 @@ def dataclass_report_to_json(report: object) -> dict[str, Any]:
     """Convert a dataclass report to a JSON-serializable dictionary."""
     if not is_dataclass(report):
         raise TypeError("report must be a dataclass instance")
-    value = asdict(report)
+    value = asdict(cast(Any, report))
     if not isinstance(value, dict):
         raise TypeError("dataclass report must convert to a dictionary")
     return value
