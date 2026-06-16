@@ -4,10 +4,20 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TypeAlias
+from typing import Literal, TypeAlias, TypedDict
 
 JsonObject: TypeAlias = dict[str, object]
-ToolSpec: TypeAlias = dict[str, object]
+
+
+class ToolFunctionSpec(TypedDict):
+    name: str
+    description: str
+    parameters: JsonObject
+
+
+class ToolSpec(TypedDict):
+    type: Literal["function"]
+    function: ToolFunctionSpec
 
 
 class AgentState(Enum):
