@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Any, TextIO
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
+SEARCH_DATASETS_DIR = Path("evals/search/datasets")
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
@@ -264,13 +265,30 @@ def _safe_filename_part(value: str) -> str:
     return cleaned or "unknown"
 
 
+def latest_search_dataset() -> Path:
+    """Return the newest versioned synthetic search dataset path."""
+    versioned_datasets: list[tuple[int, Path]] = []
+    for path in SEARCH_DATASETS_DIR.glob("search_synthetic_v*.json"):
+        match = re.fullmatch(r"search_synthetic_v(\d+)\.json", path.name)
+        if match:
+            versioned_datasets.append((int(match.group(1)), path))
+
+    if versioned_datasets:
+        return max(versioned_datasets)[1]
+
+    return SEARCH_DATASETS_DIR / "search_synthetic_v1.json"
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Evaluate challenge markdown search.")
     parser.add_argument(
         "--dataset",
         type=Path,
-        default=Path("evals/search/datasets/search_smoke.json"),
-        help="JSON dataset of search queries and expected markdown paths.",
+        default=latest_search_dataset(),
+        help=(
+            "JSON dataset of search queries and expected markdown paths. "
+            "Defaults to the newest evals/search/datasets/search_synthetic_v*.json file."
+        ),
     )
     parser.add_argument(
         "--data-dir",

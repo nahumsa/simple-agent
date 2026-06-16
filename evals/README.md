@@ -13,11 +13,19 @@ Both evals support text, JSON, and CSV output. By default, each eval run prints 
 
 Search evals measure whether challenge markdown search returns the expected files for labeled queries.
 
-Run the included smoke dataset:
+Run the latest included synthetic regression dataset (`evals/search/datasets/search_synthetic_v1.json`):
 
 ```bash
 uv run python evals/search/eval.py
 ```
+
+This dataset expands the original smoke coverage with realistic failure-oriented queries across:
+
+- wording style: exact names, capability descriptions, colloquial/noisy requests;
+- retrieval risk: unique targets, confusable neighbors, multi-result families;
+- topic clusters: CLI/text tools, networking/protocols, data formats, web/apps, AI/devtools, and support docs.
+
+When more `search_synthetic_v*.json` datasets are added, the eval automatically uses the highest version number by default.
 
 Run a custom dataset:
 

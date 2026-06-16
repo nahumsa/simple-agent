@@ -1,0 +1,327 @@
+[
+  {
+    "id": "wc-noisy-cli",
+    "query": "I need a beginner CLI project that counts bytes, lines, words, and chars in a file like unix wc",
+    "expected_paths": ["001-challenge-wc.md"]
+  },
+  {
+    "id": "json-parser-conceptual",
+    "query": "learn tokenizing and parsing a JSON grammar with arrays objects strings numbers booleans and null",
+    "expected_paths": ["002-challenge-json-parser.md"]
+  },
+  {
+    "id": "huffman-compression",
+    "query": "compress and decompress files using Huffman coding and a frequency tree",
+    "expected_paths": ["003-challenge-huffman.md"]
+  },
+  {
+    "id": "cut-delimited-fields",
+    "query": "extract selected columns from delimited text, like printing field 2 from a CSV line",
+    "expected_paths": ["004-challenge-cut.md"]
+  },
+  {
+    "id": "load-balancer-confusable-proxy",
+    "query": "route HTTP traffic across several backend servers with round robin and health checks",
+    "expected_paths": ["005-challenge-load-balancer.md"]
+  },
+  {
+    "id": "sort-lines-options",
+    "query": "write a command line tool that sorts input lines and supports typical sort options",
+    "expected_paths": ["006-challenge-sort.md"]
+  },
+  {
+    "id": "calculator-expression-parser",
+    "query": "small project to parse arithmetic expressions with precedence and evaluate the result",
+    "expected_paths": ["007-challenge-calculator.md"]
+  },
+  {
+    "id": "redis-server-resp",
+    "query": "implement an in memory data structure server that speaks RESP and handles concurrent clients",
+    "expected_paths": ["008-challenge-redis.md"]
+  },
+  {
+    "id": "grep-regex-search",
+    "query": "build a grep style pattern matching tool with regular expressions for text files",
+    "expected_paths": ["009-challenge-grep.md"]
+  },
+  {
+    "id": "uniq-adjacent-counts",
+    "query": "filter repeated adjacent lines and optionally count duplicate occurrences",
+    "expected_paths": ["010-challenge-uniq.md"]
+  },
+  {
+    "id": "webserver-directory-traversal",
+    "query": "serve files over HTTP from scratch and protect against directory traversal attacks",
+    "expected_paths": ["011-challenge-webserver.md"]
+  },
+  {
+    "id": "url-shortener-colloquial",
+    "query": "make a tinyurl bitly clone with short links, redirects, and a simple REST API",
+    "expected_paths": ["012-challenge-url-shortener.md"]
+  },
+  {
+    "id": "diff-file-comparison",
+    "query": "compare two files and display the changed lines like a unified diff",
+    "expected_paths": ["013-challenge-diff.md"]
+  },
+  {
+    "id": "shell-pipes-builtins",
+    "query": "build my own shell with command history, pipes, built in commands, and signal handling",
+    "expected_paths": ["014-challenge-shell.md"]
+  },
+  {
+    "id": "cat-concatenate-display",
+    "query": "simple unix clone that concatenates files and prints them to standard output",
+    "expected_paths": ["015-challenge-cat.md"]
+  },
+  {
+    "id": "dns-resolver-vs-forwarder",
+    "query": "craft DNS UDP packets and recursively resolve a domain name to an IP address",
+    "expected_paths": ["022-challenge-dns-resolver.md"]
+  },
+  {
+    "id": "dns-forwarder-vs-resolver",
+    "query": "accept DNS queries locally and forward them to an upstream DNS server",
+    "expected_paths": ["044-challenge-dns-forwarder.md"]
+  },
+  {
+    "id": "traceroute-ttl-hops",
+    "query": "network diagnostic project that discovers each hop to a host using TTL",
+    "expected_paths": ["023-challenge-traceroute.md"]
+  },
+  {
+    "id": "port-scanner-open-ports",
+    "query": "scan a target host to find which TCP ports are open",
+    "expected_paths": ["045-challenge-port-scanner.md"]
+  },
+  {
+    "id": "netcat-socket-utility",
+    "query": "read and write raw data across TCP connections from the command line like nc",
+    "expected_paths": ["059-challenge-netcat.md"]
+  },
+  {
+    "id": "socat-bidirectional-relay",
+    "query": "create a multipurpose bidirectional relay between sockets, files, or pipes",
+    "expected_paths": ["079-challenge-socat.md"]
+  },
+  {
+    "id": "curl-http-client",
+    "query": "terminal tool for making HTTP requests with methods headers and response output",
+    "expected_paths": ["040-challenge-curl.md"]
+  },
+  {
+    "id": "forward-proxy-vs-load-balancer",
+    "query": "HTTP proxy that receives client requests and forwards them to destination servers",
+    "expected_paths": ["051-challenge-forward-proxy.md"]
+  },
+  {
+    "id": "load-tester-concurrency",
+    "query": "stress test a web server with many concurrent HTTP requests and report performance metrics",
+    "expected_paths": ["041-challenge-load-tester.md"]
+  },
+  {
+    "id": "ntp-clock-sync",
+    "query": "synchronize the local clock by querying a Network Time Protocol server",
+    "expected_paths": ["028-challenge-ntp.md"]
+  },
+  {
+    "id": "smtp-email-server",
+    "query": "receive email messages by implementing a basic SMTP server",
+    "expected_paths": ["090-challenge-smtp.md"]
+  },
+  {
+    "id": "whois-domain-registration",
+    "query": "lookup domain registration information from whois servers",
+    "expected_paths": ["095-challenge-whois.md"]
+  },
+  {
+    "id": "json-cli-processor",
+    "query": "command line JSON processor for selecting fields and transforming JSON like jq",
+    "expected_paths": ["034-challenge-jq.md"]
+  },
+  {
+    "id": "json-validator-pretty-print",
+    "query": "validate JSON input and pretty print it with nice formatting",
+    "expected_paths": ["105-challenge-json-validator.md"]
+  },
+  {
+    "id": "yaml-parser",
+    "query": "parse YAML documents into native data structures from scratch",
+    "expected_paths": ["067-challenge-yaml.md"]
+  },
+  {
+    "id": "yq-yaml-cli",
+    "query": "I want to build a yq style command line YAML processor",
+    "expected_paths": ["046-challenge-yq.md"]
+  },
+  {
+    "id": "redis-cli-vs-server",
+    "query": "make a command line client that connects to Redis and sends commands",
+    "expected_paths": ["037-challenge-redis-cli.md"]
+  },
+  {
+    "id": "memcached-server",
+    "query": "build a high performance distributed memory caching server similar to memcached",
+    "expected_paths": ["017-challenge-memcached.md"]
+  },
+  {
+    "id": "memcached-client-vs-server",
+    "query": "command line client for interacting with a memcached cache using get and set",
+    "expected_paths": ["070-challenge-memcached-client.md"]
+  },
+  {
+    "id": "bitcask-log-structured-kv",
+    "query": "log structured key value store with fast reads and writes inspired by Bitcask",
+    "expected_paths": ["096-challenge-bitcask.md"]
+  },
+  {
+    "id": "bloom-filter-spellchecker",
+    "query": "spell checker using a probabilistic Bloom filter for fast membership tests",
+    "expected_paths": ["053-challenge-bloom.md"]
+  },
+  {
+    "id": "spelling-correction-suggestions",
+    "query": "suggest corrections when a user types misspelled words",
+    "expected_paths": ["097-challenge-spelling-correction.md"]
+  },
+  {
+    "id": "docker-namespaces-cgroups",
+    "query": "container runtime project using Linux namespaces cgroups chroot and image pulls",
+    "expected_paths": ["052-challenge-docker.md"]
+  },
+  {
+    "id": "git-internals-client",
+    "query": "implement git init add commit diff and push from scratch",
+    "expected_paths": ["026-challenge-git.md"]
+  },
+  {
+    "id": "strace-system-calls",
+    "query": "trace Linux system calls made by a running program like strace",
+    "expected_paths": ["086-challenge-strace.md"]
+  },
+  {
+    "id": "top-process-monitor",
+    "query": "terminal process monitor that shows CPU memory and running processes like top",
+    "expected_paths": ["088-challenge-top.md"]
+  },
+  {
+    "id": "loc-counter-codebase",
+    "query": "count lines of code in a repository and report codebase statistics",
+    "expected_paths": ["092-challenge-loc-counter.md"]
+  },
+  {
+    "id": "code-comment-remover",
+    "query": "strip comments from source code files without breaking the code",
+    "expected_paths": ["087-challenge-code-comment-remover.md"]
+  },
+  {
+    "id": "lsp-ide-integration",
+    "query": "implement a Language Server Protocol backend for editor autocomplete and diagnostics",
+    "expected_paths": ["098-challenge-lsp.md"]
+  },
+  {
+    "id": "bittorrent-p2p",
+    "query": "parse torrent files contact trackers connect to peers and download pieces",
+    "expected_paths": ["099-challenge-bittorrent.md"]
+  },
+  {
+    "id": "ai-chatbot-llm",
+    "query": "LLM powered chatbot with system prompts conversation history and API calls",
+    "expected_paths": ["101-challenge-llm-chatbot.md"]
+  },
+  {
+    "id": "mcp-server-agent-context",
+    "query": "Model Context Protocol server that exposes context and tools for AI agents",
+    "expected_paths": ["103-challenge-mcp-server.md"]
+  },
+  {
+    "id": "rtfm-agent-docs-qa",
+    "query": "AI agent that reads documentation and answers questions from the docs",
+    "expected_paths": ["109-challenge-rtfm-agent.md"]
+  },
+  {
+    "id": "online-python-playground",
+    "query": "browser based Python code editor that executes user code online",
+    "expected_paths": ["107-challenge-online-python-playground.md"]
+  },
+  {
+    "id": "static-site-generator",
+    "query": "convert markdown files into a complete static HTML website",
+    "expected_paths": ["077-challenge-ssg.md"]
+  },
+  {
+    "id": "markdown-pdf-editor",
+    "query": "editor that converts Markdown documents into PDF files",
+    "expected_paths": ["082-challenge-md-to-pdf.md"]
+  },
+  {
+    "id": "markdown-slides",
+    "query": "turn Markdown files into slide decks and presentations",
+    "expected_paths": ["083-challenge-md-to-slides.md"]
+  },
+  {
+    "id": "text-editor-terminal",
+    "query": "terminal based text editor with cursor movement search and syntax highlighting",
+    "expected_paths": ["073-challenge-text-editor.md"]
+  },
+  {
+    "id": "scheduler-calendar-api",
+    "query": "calendar API app that automates scheduling meetings",
+    "expected_paths": ["029-challenge-scheduler.md"]
+  },
+  {
+    "id": "cron-scheduling-utility",
+    "query": "crontab style scheduling utility that runs commands on a schedule",
+    "expected_paths": ["032-challenge-cron.md"]
+  },
+  {
+    "id": "rate-limiter-api",
+    "query": "limit how often clients can call an API service",
+    "expected_paths": ["027-challenge-rate-limiter.md"]
+  },
+  {
+    "id": "uptime-monitoring-alerts",
+    "query": "monitor website uptime and send alerts when a site goes down",
+    "expected_paths": ["078-challenge-uptime-monitoring.md"]
+  },
+  {
+    "id": "video-chat-webrtc",
+    "query": "peer to peer video chat application using WebRTC",
+    "expected_paths": ["076-challenge-video-chat.md"]
+  },
+  {
+    "id": "realtime-chat-app",
+    "query": "real time chat application with both client and server components",
+    "expected_paths": ["024-challenge-realtime-chat.md"]
+  },
+  {
+    "id": "faq-language-choice",
+    "query": "what programming language should I use for the coding challenges",
+    "expected_paths": ["faq.md", "getting-started.md"]
+  },
+  {
+    "id": "getting-started-first-challenge",
+    "query": "I'm new here and want recommended first challenges to start with",
+    "expected_paths": ["getting-started.md", "faq.md"]
+  },
+  {
+    "id": "troubleshooting-stuck",
+    "query": "I'm stuck on a challenge and need advice on where to get help or examples",
+    "expected_paths": ["troubleshooting.md", "faq.md"]
+  },
+  {
+    "id": "family-redis-tools",
+    "query": "show me both Redis projects, the server and the command line client",
+    "expected_paths": ["008-challenge-redis.md", "037-challenge-redis-cli.md"]
+  },
+  {
+    "id": "family-json-projects",
+    "query": "JSON projects for parsing validating pretty printing or querying documents",
+    "expected_paths": ["002-challenge-json-parser.md", "034-challenge-jq.md", "105-challenge-json-validator.md"]
+  },
+  {
+    "id": "family-markdown-converters",
+    "query": "projects that transform Markdown into websites PDFs or presentations",
+    "expected_paths": ["077-challenge-ssg.md", "082-challenge-md-to-pdf.md", "083-challenge-md-to-slides.md"]
+  }
+]
