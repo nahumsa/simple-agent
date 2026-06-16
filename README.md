@@ -11,7 +11,7 @@ A small, readable Python agent for answering questions about [Coding Challenges]
 This project is intentionally lightweight. There is no framework hiding the interesting parts: the chat loop, LLM client, conversation memory, tool calling, and CLI wiring are all plain Python.
 It is a good project if you want to learn how an LLM-powered agent works from end to end.
 
-The agent starts a terminal chat session, loads a system prompt, gives the model access to the local Coding Challenges markdown files, and lets the model call tools such as `read_challenge_index` and `read_file` before answering.
+The agent starts a terminal chat session, loads a system prompt, gives the model access to the local Coding Challenges markdown files, and lets the model call tools such as `search_challenges` and `read_file` before answering.
 
 There are some patterns which are heavily inspired by [ml-intern](https://github.com/huggingface/ml-intern/tree/main).
 
@@ -180,7 +180,6 @@ you: Find a challenge that teaches parsing and give me a plan for solving it.
 
 When the model needs details, it can call the built-in tools:
 
-- `read_challenge_index` reads `data/extracted_data/index.md`.
 - `search_challenges` full-text searches the markdown files with DuckDB's FTS extension.
 - `read_file` reads a specific markdown file from `data/extracted_data/`, for example `001-challenge-wc.md`.
 - `fetch_url` fetches a public HTTP(S) URL and returns text content, with local/private network URLs refused.

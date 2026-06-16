@@ -13,38 +13,6 @@ from frameworks.barebones.tools.markdown_search import MarkdownSearchError
 from frameworks.barebones.tools.tool_registry import ToolRegistry
 
 
-class ReadChallengeIndexTool:
-    """Command that reads the Coding Challenges index."""
-
-    name = "read_challenge_index"
-
-    def __init__(self, repository: ChallengeRepository) -> None:
-        self.repository = repository
-
-    def spec(self) -> ToolSpec:
-        return {
-            "type": "function",
-            "function": {
-                "name": self.name,
-                "description": "Read the Coding Challenges markdown index.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": False,
-                },
-            },
-        }
-
-    async def execute(
-        self,
-        args: JsonObject,
-        *,
-        session: object,
-        tool_call_id: str,
-    ) -> tuple[str, bool]:
-        return self.repository.read_index()
-
-
 class ReadMarkdownFileTool:
     """Command that validates and reads an extracted markdown file."""
 
@@ -173,7 +141,7 @@ class FetchURLTool:
 
 
 class ChallengeDataTools:
-    """Tools for browsing and full-text searching extracted Coding Challenges markdown files."""
+    """Tools for searching and reading extracted Coding Challenges markdown files."""
 
     def __init__(
         self,
@@ -183,7 +151,6 @@ class ChallengeDataTools:
         self.repository = ChallengeRepository(data_dir, search_db_path)
         self.registry = ToolRegistry(
             [
-                ReadChallengeIndexTool(self.repository),
                 ReadMarkdownFileTool(self.repository),
                 SearchChallengesTool(self.repository),
                 FetchURLTool(),

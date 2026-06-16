@@ -75,11 +75,13 @@ Reported metrics:
 
 Tool-call evals run the real agent with an LLM and check whether the agent chooses the expected tools for each user prompt. These evals require your configured LLM provider to be running/reachable.
 
-Run the included smoke dataset:
+Run the latest included tool-call dataset (`evals/tool_call/datasets/tool_call_v2.json`):
 
 ```bash
 uv run python evals/tool_call/eval.py
 ```
+
+The original v1 dataset is kept at `evals/tool_call/datasets/tool_call.json` for comparison.
 
 Run a custom dataset:
 

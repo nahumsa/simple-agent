@@ -89,6 +89,17 @@ def test_search_refreshes_index_when_markdown_content_changes(tmp_path) -> None:
     assert [result.path for result in refreshed_results] == ["001-shell.md"]
 
 
+def test_challenge_data_tools_expose_search_read_and_fetch_tools_only(tmp_path) -> None:
+    tools = ChallengeDataTools(
+        data_dir=tmp_path,
+        search_db_path=tmp_path / "search.duckdb",
+    )
+
+    tool_names = [spec["function"]["name"] for spec in tools.specs()]
+
+    assert tool_names == ["read_file", "search_challenges", "fetch_url"]
+
+
 def test_challenge_data_tool_validates_and_clamps_search_arguments(tmp_path) -> None:
     class SearchSpy:
         def __init__(self) -> None:

@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
+TOOL_CALL_DATASETS_DIR = Path("evals/tool_call/datasets")
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
@@ -400,13 +401,30 @@ def _safe_filename_part(value: str) -> str:
     return cleaned or "unknown"
 
 
+def latest_tool_call_dataset() -> Path:
+    """Return the newest versioned tool-call dataset path."""
+    versioned_datasets: list[tuple[int, Path]] = []
+    for path in TOOL_CALL_DATASETS_DIR.glob("tool_call_v*.json"):
+        match = re.fullmatch(r"tool_call_v(\d+)\.json", path.name)
+        if match:
+            versioned_datasets.append((int(match.group(1)), path))
+
+    if versioned_datasets:
+        return max(versioned_datasets)[1]
+
+    return TOOL_CALL_DATASETS_DIR / "tool_call.json"
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Evaluate agent tool selection.")
     parser.add_argument(
         "--dataset",
         type=Path,
-        default=Path("evals/tool_call/datasets/tool_call.json"),
-        help="JSON dataset of user prompts and expected agent tool calls.",
+        default=latest_tool_call_dataset(),
+        help=(
+            "JSON dataset of user prompts and expected agent tool calls. "
+            "Defaults to the newest evals/tool_call/datasets/tool_call_v*.json file."
+        ),
     )
     parser.add_argument(
         "--provider",

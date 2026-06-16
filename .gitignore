@@ -13,6 +13,3 @@ wheels/
 data/*.duckdb
 data/*.duckdb.wal
 
-# Generated eval results
-evals/*/results/*.csv
-!evals/*/results/.gitkeep

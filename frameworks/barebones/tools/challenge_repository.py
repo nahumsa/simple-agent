@@ -45,10 +45,6 @@ class ChallengeRepository:
             f"{index}"
         )
 
-    def read_index(self) -> tuple[str, bool]:
-        """Read the challenge index markdown file."""
-        return self._read_file(self.index_file)
-
     def read_markdown(self, requested_path: str) -> tuple[str, bool]:
         """Safely read a markdown file relative to the challenge data directory."""
         relative_path = Path(requested_path)
