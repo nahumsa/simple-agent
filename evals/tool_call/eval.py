@@ -98,8 +98,9 @@ class RecordingEventSink:
     def tool_call_names(self) -> list[str]:
         names: list[str] = []
         for event, payload in self.events:
-            if event == "tool_call" and isinstance(payload.get("tool"), str):
-                names.append(payload["tool"])
+            tool = payload.get("tool")
+            if event == "tool_call" and isinstance(tool, str):
+                names.append(tool)
         return names
 
 
