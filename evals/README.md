@@ -5,7 +5,7 @@ Each eval type has its own folder:
 - `evals/search/` evaluates markdown search quality.
 - `evals/tool_call/` evaluates built-in tool execution and validation.
 
-Both evals support text, JSON, and CSV output. By default, each eval run also saves a timestamped CSV result file under that eval's `results/` folder. The filename includes the eval name, run datetime, and model/search backend name.
+Both evals support text, JSON, and CSV output. By default, each eval run prints per-case progress to stderr and saves a timestamped CSV result file under that eval's `results/` folder. The filename includes the eval name, run datetime, and model/search backend name.
 
 ---
 
@@ -41,6 +41,12 @@ Write CSV output to a specific file:
 
 ```bash
 uv run python evals/search/eval.py --csv-output evals/search/results/search_smoke.csv
+```
+
+Disable progress output:
+
+```bash
+uv run python evals/search/eval.py --no-progress
 ```
 
 Default saved result filenames look like:
@@ -99,6 +105,12 @@ Write CSV output to a specific file:
 
 ```bash
 uv run python evals/tool_call/eval.py --csv-output evals/tool_call/results/tool_call_smoke.csv
+```
+
+Disable progress output:
+
+```bash
+uv run python evals/tool_call/eval.py --no-progress
 ```
 
 Default saved result filenames look like:

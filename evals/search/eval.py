@@ -20,7 +20,7 @@ import sys
 from datetime import UTC, datetime
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, TextIO
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 if str(ROOT_DIR) not in sys.path:
@@ -139,13 +139,28 @@ def run_eval(
     data_dir: Path,
     db_path: Path,
     limit: int,
+    progress: bool = False,
+    progress_stream: TextIO | None = None,
 ) -> SearchEvalReport:
     """Run all search eval cases and compute aggregate metrics."""
     cases = load_dataset(dataset_path)
     search = DuckDBFTSMarkdownSearch(data_dir=data_dir, db_path=db_path)
-    results = [
-        evaluate_case(case, search.search(case.query, limit=limit)) for case in cases
-    ]
+    results: list[SearchEvalResult] = []
+    total_cases = len(cases)
+    stream = progress_stream or sys.stderr
+
+    for index, case in enumerate(cases, start=1):
+        if progress:
+            print(
+                f"[{index}/{total_cases}] RUN {case.id}: {case.query}",
+                file=stream,
+                flush=True,
+            )
+        result = evaluate_case(case, search.search(case.query, limit=limit))
+        results.append(result)
+        if progress:
+            status = "PASS" if result.hit else "FAIL"
+            print(f"[{index}/{total_cases}] {status} {case.id}", file=stream, flush=True)
 
     case_count = len(results)
     hit_rate = sum(result.hit for result in results) / case_count if case_count else 0.0
@@ -303,6 +318,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Do not save a timestamped CSV result file.",
     )
+    parser.add_argument(
+        "--no-progress",
+        action="store_true",
+        help="Do not print per-case progress to stderr.",
+    )
     return parser.parse_args()
 
 
@@ -313,6 +333,7 @@ def main() -> None:
         data_dir=args.data_dir,
         db_path=args.db_path,
         limit=max(1, args.limit),
+        progress=not args.no_progress,
     )
     saved_results_path = None
     if args.csv_output:

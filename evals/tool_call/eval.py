@@ -23,7 +23,7 @@ import sys
 from datetime import UTC, datetime
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, TextIO
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 TOOL_CALL_DATASETS_DIR = Path("evals/tool_call/datasets")
@@ -268,21 +268,34 @@ async def run_eval_async(
     llm_config: LLMConfig,
     agent_config: AgentConfig,
     emit_messages: bool,
+    progress: bool = False,
+    progress_stream: TextIO | None = None,
 ) -> AgentToolCallEvalReport:
     """Run all agent tool-call eval cases and compute aggregate metrics."""
     cases = load_dataset(dataset_path)
     results: list[AgentToolCallEvalResult] = []
+    total_cases = len(cases)
+    stream = progress_stream or sys.stderr
 
-    for case in cases:
+    for index, case in enumerate(cases, start=1):
+        if progress:
+            print(f"[{index}/{total_cases}] RUN {case.id}", file=stream, flush=True)
         loop, recorder = build_eval_loop(
             llm_config=llm_config,
             agent_config=agent_config,
             emit_messages=emit_messages,
         )
         final_response = await loop.run_turn(case.user_prompt)
-        results.append(
-            evaluate_case(case, recorder.tool_call_names(), final_response or "")
-        )
+        result = evaluate_case(case, recorder.tool_call_names(), final_response or "")
+        results.append(result)
+        if progress:
+            status = "PASS" if result.passed else "FAIL"
+            actual_tools = ",".join(result.actual_tool_calls) or "none"
+            print(
+                f"[{index}/{total_cases}] {status} {case.id} tools={actual_tools}",
+                file=stream,
+                flush=True,
+            )
 
     case_count = len(results)
     pass_rate = (
@@ -304,6 +317,8 @@ def run_eval(
     llm_config: LLMConfig,
     agent_config: AgentConfig,
     emit_messages: bool,
+    progress: bool = False,
+    progress_stream: TextIO | None = None,
 ) -> AgentToolCallEvalReport:
     """Synchronous wrapper for the async agent eval."""
     return asyncio.run(
@@ -312,6 +327,8 @@ def run_eval(
             llm_config=llm_config,
             agent_config=agent_config,
             emit_messages=emit_messages,
+            progress=progress,
+            progress_stream=progress_stream,
         )
     )
 
@@ -488,6 +505,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Do not save a timestamped CSV result file.",
     )
+    parser.add_argument(
+        "--no-progress",
+        action="store_true",
+        help="Do not print per-case progress to stderr.",
+    )
     return parser.parse_args()
 
 
@@ -514,6 +536,7 @@ def main() -> None:
             system_prompt=read_system_prompt(args.system_prompt_file),
         ),
         emit_messages=args.emit_messages,
+        progress=not args.no_progress,
     )
     saved_results_path = None
     if args.csv_output:
