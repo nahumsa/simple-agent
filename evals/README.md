@@ -7,6 +7,8 @@ Each eval type has its own folder:
 
 Both evals support text, JSON, and CSV output. By default, each eval run prints per-case progress to stderr and saves a timestamped CSV result file under that eval's `results/` folder. The filename includes the eval name, run datetime, and model/search backend name.
 
+Shared mechanics live under `evals/core/` so new evals do not need to copy/paste dataset loading, latest-version discovery, progress reporting, CSV writing, result-path generation, or common output CLI flags.
+
 ---
 
 ## Search eval
@@ -17,6 +19,8 @@ Run the latest included synthetic regression dataset (`evals/search/datasets/sea
 
 ```bash
 uv run python evals/search/eval.py
+# or
+uv run python -m evals.run search
 ```
 
 This dataset expands the original smoke coverage with realistic failure-oriented queries across:
@@ -93,6 +97,8 @@ Run the latest included tool-call dataset (`evals/tool_call/datasets/tool_call_v
 
 ```bash
 uv run python evals/tool_call/eval.py
+# or
+uv run python -m evals.run tool-call
 ```
 
 The original v1 dataset is kept at `evals/tool_call/datasets/tool_call.json` for comparison.
@@ -143,3 +149,35 @@ Tool-call dataset format:
 Reported metric:
 
 - `pass_rate`: fraction of agent cases where the expected tool calls appear and the final answer contains the expected text.
+
+---
+
+## Adding a new eval
+
+Create a folder like:
+
+```text
+evals/my_eval/
+  eval.py
+  datasets/my_eval_v1.json
+  results/
+```
+
+In `eval.py`, keep only eval-specific pieces local:
+
+- case/result/report dataclasses;
+- dataset field validation using helpers from `evals.core.datasets`;
+- case execution and scoring;
+- aggregate metric calculation;
+- text report formatting and CSV row shape.
+
+Use the shared helpers for common behavior:
+
+- `evals.core.datasets.load_json_list()`
+- `evals.core.datasets.latest_versioned_dataset()`
+- `evals.core.progress.ProgressReporter`
+- `evals.core.output.write_csv_rows()`
+- `evals.core.cli.add_common_output_args()`
+- `evals.core.cli.emit_report()`
+
+Keep current per-eval entrypoints for backwards compatibility, and prefer extracting another core helper only after the same pattern appears in multiple evals.
