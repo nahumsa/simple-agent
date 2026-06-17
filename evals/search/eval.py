@@ -35,7 +35,6 @@ from evals.core.datasets import (  # noqa: E402
 from evals.core.output import (  # noqa: E402
     dataclass_report_to_json,
     default_csv_results_path as core_default_csv_results_path,
-    safe_filename_part,
     write_csv_rows,
 )
 from evals.core.progress import ProgressReporter  # noqa: E402
@@ -258,10 +257,6 @@ def default_csv_results_path(report: SearchEvalReport, results_dir: Path) -> Pat
         results_dir=results_dir,
     )
 
-
-def _safe_filename_part(value: str) -> str:
-    """Return a filesystem-friendly filename segment."""
-    return safe_filename_part(value)
 
 
 def latest_search_dataset() -> Path:
