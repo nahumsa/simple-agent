@@ -7,6 +7,7 @@ Examples:
 
 from __future__ import annotations
 
+import argparse
 import sys
 from importlib import import_module
 from typing import Callable
@@ -18,29 +19,44 @@ _COMMAND_MODULES = {
 }
 
 
-def _usage() -> str:
-    commands = ", ".join(sorted(_COMMAND_MODULES))
-    return f"Usage: python -m evals.run <eval> [args...]\n\nAvailable evals: {commands}"
+def build_parser() -> argparse.ArgumentParser:
+    """Build the unified eval dispatcher argument parser."""
+    parser = argparse.ArgumentParser(
+        prog="python -m evals.run",
+        description="Run an eval suite.",
+    )
+    parser.add_argument(
+        "eval_name",
+        choices=sorted(_COMMAND_MODULES),
+        metavar="eval",
+        help="Eval suite to run.",
+    )
+    parser.add_argument(
+        "eval_args",
+        nargs=argparse.REMAINDER,
+        help="Arguments passed to the selected eval suite.",
+    )
+    return parser
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     """Dispatch to a specific eval's existing main function."""
-    if len(sys.argv) < 2 or sys.argv[1] in {"-h", "--help"}:
-        print(_usage())
+    parser = build_parser()
+    if argv is None:
+        argv = sys.argv[1:]
+    if not argv:
+        parser.print_help()
         return
 
-    command = sys.argv[1]
-    module_name = _COMMAND_MODULES.get(command)
-    if module_name is None:
-        print(f"Unknown eval: {command}\n\n{_usage()}", file=sys.stderr)
-        raise SystemExit(2)
+    args = parser.parse_args(argv)
+    module_name = _COMMAND_MODULES[args.eval_name]
 
     module = import_module(module_name)
     eval_main = getattr(module, "main")
     if not callable(eval_main):
         raise TypeError(f"{module_name}.main is not callable")
 
-    sys.argv = [f"python -m evals.run {command}", *sys.argv[2:]]
+    sys.argv = [f"python -m evals.run {args.eval_name}", *args.eval_args]
     cast_main: Callable[[], None] = eval_main
     cast_main()
 
