@@ -40,7 +40,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> None:
-    """Dispatch to a specific eval's existing main function."""
+    """Dispatch to a specific eval's main function with explicit arguments."""
     parser = build_parser()
     if argv is None:
         argv = sys.argv[1:]
@@ -56,9 +56,8 @@ def main(argv: list[str] | None = None) -> None:
     if not callable(eval_main):
         raise TypeError(f"{module_name}.main is not callable")
 
-    sys.argv = [f"python -m evals.run {args.eval_name}", *args.eval_args]
-    cast_main: Callable[[], None] = eval_main
-    cast_main()
+    cast_main: Callable[[list[str] | None], None] = eval_main
+    cast_main(args.eval_args)
 
 
 if __name__ == "__main__":

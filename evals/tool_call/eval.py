@@ -182,19 +182,6 @@ def _string_list_field(
     )
 
 
-def _agent_config_with_challenge_context(
-    config: AgentConfig,
-    tools: ChallengeDataTools,
-) -> AgentConfig:
-    parts = [part for part in [config.system_prompt, tools.initial_context()] if part]
-    if not parts:
-        return config
-    return AgentConfig(
-        max_iterations=config.max_iterations,
-        system_prompt="\n\n".join(parts),
-    )
-
-
 def build_eval_loop(
     *,
     llm_config: LLMConfig,
@@ -210,7 +197,7 @@ def build_eval_loop(
 
     session = CliSession(
         build_llm(llm_config),
-        _agent_config_with_challenge_context(agent_config, tools),
+        agent_config,
         tools=LoggingTools(tools),
         emit_messages=False,
         event_sinks=sinks,
@@ -423,7 +410,7 @@ def latest_tool_call_dataset() -> Path:
     )
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Evaluate agent tool selection.")
     parser.add_argument(
         "--dataset",
@@ -477,7 +464,7 @@ def parse_args() -> argparse.Namespace:
         help="Print live assistant/tool messages while running evals.",
     )
     add_common_output_args(parser, default_results_dir=Path("evals/tool_call/results"))
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 def _llm_config_from_args(args: argparse.Namespace) -> LLMConfig:
@@ -493,8 +480,8 @@ def _llm_config_from_args(args: argparse.Namespace) -> LLMConfig:
     )
 
 
-def main() -> None:
-    args = parse_args()
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
     report = run_eval(
         dataset_path=args.dataset,
         llm_config=_llm_config_from_args(args),

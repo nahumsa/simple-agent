@@ -268,7 +268,7 @@ def latest_search_dataset() -> Path:
     )
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Evaluate challenge markdown search.")
     parser.add_argument(
         "--dataset",
@@ -298,11 +298,11 @@ def parse_args() -> argparse.Namespace:
         help="Number of search results to score per query.",
     )
     add_common_output_args(parser, default_results_dir=Path("evals/search/results"))
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
-def main() -> None:
-    args = parse_args()
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
     report = run_eval(
         dataset_path=args.dataset,
         data_dir=args.data_dir,

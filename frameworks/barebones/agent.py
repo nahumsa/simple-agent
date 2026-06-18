@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from agent_core.config import AgentConfig, AppConfig
+from agent_core.config import AppConfig
 from agent_core.types import ChatTurnResult
 from frameworks.barebones.llms import build_llm
 from frameworks.barebones.loop import SimpleAgentLoop
@@ -47,26 +47,11 @@ def build_barebones_framework(config: AppConfig) -> BarebonesChatFramework:
 def build_barebones_components(config: AppConfig) -> BarebonesComponents:
     """Composition root for the barebones agent."""
     tools = ChallengeDataTools()
-    agent_config = _agent_config_with_challenge_context(config.agent, tools)
     session = CliSession(
         build_llm(config.llm),
-        agent_config,
+        config.agent,
         tools=LoggingTools(tools),
         emit_messages=False,
     )
     loop = SimpleAgentLoop(session)
     return BarebonesComponents(tools=tools, session=session, loop=loop)
-
-
-def _agent_config_with_challenge_context(
-    config: AgentConfig,
-    tools: ChallengeDataTools,
-) -> AgentConfig:
-    """Append the extracted challenge index to the system prompt when available."""
-    parts = [part for part in [config.system_prompt, tools.initial_context()] if part]
-    if not parts:
-        return config
-    return AgentConfig(
-        max_iterations=config.max_iterations,
-        system_prompt="\n\n".join(parts),
-    )
