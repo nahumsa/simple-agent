@@ -13,12 +13,8 @@ Dataset format:
 from __future__ import annotations
 
 import argparse
-import csv
-import json
-import re
 import sys
-from datetime import UTC, datetime
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, TextIO
 
@@ -27,6 +23,21 @@ SEARCH_DATASETS_DIR = Path("evals/search/datasets")
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
+from evals.core.cli import (  # noqa: E402
+    add_common_output_args,
+    emit_report,
+    output_config_from_args,
+)
+from evals.core.datasets import (  # noqa: E402
+    latest_versioned_dataset,
+    load_json_list,
+)
+from evals.core.output import (  # noqa: E402
+    dataclass_report_to_json,
+    default_csv_results_path as core_default_csv_results_path,
+    write_csv_rows,
+)
+from evals.core.progress import ProgressReporter  # noqa: E402
 from frameworks.barebones.tools import DuckDBFTSMarkdownSearch, SearchResult  # noqa: E402
 
 
@@ -69,9 +80,7 @@ class SearchEvalReport:
 
 def load_dataset(path: Path) -> list[SearchEvalCase]:
     """Load and validate a search eval dataset."""
-    raw_cases = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(raw_cases, list):
-        raise ValueError("Dataset must be a JSON list of cases.")
+    raw_cases = load_json_list(path)
 
     cases: list[SearchEvalCase] = []
     for index, raw_case in enumerate(raw_cases, start=1):
@@ -148,20 +157,14 @@ def run_eval(
     search = DuckDBFTSMarkdownSearch(data_dir=data_dir, db_path=db_path)
     results: list[SearchEvalResult] = []
     total_cases = len(cases)
-    stream = progress_stream or sys.stderr
+    progress_reporter = ProgressReporter(enabled=progress, stream=progress_stream)
 
     for index, case in enumerate(cases, start=1):
-        if progress:
-            print(
-                f"[{index}/{total_cases}] RUN {case.id}: {case.query}",
-                file=stream,
-                flush=True,
-            )
+        progress_reporter.case_started(index, total_cases, f"{case.id}: {case.query}")
         result = evaluate_case(case, search.search(case.query, limit=limit))
         results.append(result)
-        if progress:
-            status = "PASS" if result.hit else "FAIL"
-            print(f"[{index}/{total_cases}] {status} {case.id}", file=stream, flush=True)
+        status = "PASS" if result.hit else "FAIL"
+        progress_reporter.case_finished(index, total_cases, status, case.id)
 
     case_count = len(results)
     hit_rate = sum(result.hit for result in results) / case_count if case_count else 0.0
@@ -209,7 +212,25 @@ def print_text_report(report: SearchEvalReport) -> None:
 
 def report_to_json(report: SearchEvalReport) -> dict[str, Any]:
     """Convert report dataclasses to JSON-serializable dictionaries."""
-    return asdict(report)
+    return dataclass_report_to_json(report)
+
+
+def report_to_summary_json(report: SearchEvalReport) -> dict[str, Any]:
+    """Build the compact JSON summary saved for every search eval run."""
+    hits = sum(result.hit for result in report.results)
+    return {
+        "eval": "search",
+        "dataset": report.dataset,
+        "data_dir": report.data_dir,
+        "model": report.model,
+        "limit": report.limit,
+        "case_count": report.case_count,
+        "passed": hits,
+        "failed": report.case_count - hits,
+        "hit_rate": report.hit_rate,
+        "mean_reciprocal_rank": report.mean_reciprocal_rank,
+        "mean_recall": report.mean_recall,
+    }
 
 
 def write_csv_report(report: SearchEvalReport, path: Path | None = None) -> None:
@@ -227,59 +248,45 @@ def write_csv_report(report: SearchEvalReport, path: Path | None = None) -> None
         "data_dir",
         "model",
     ]
-    output = path.open("w", newline="", encoding="utf-8") if path else sys.stdout
-    try:
-        writer = csv.DictWriter(output, fieldnames=fieldnames)
-        writer.writeheader()
-        for result in report.results:
-            writer.writerow(
-                {
-                    "id": result.id,
-                    "query": result.query,
-                    "expected_paths": ";".join(result.expected_paths),
-                    "returned_paths": ";".join(result.returned_paths),
-                    "hit": result.hit,
-                    "reciprocal_rank": f"{result.reciprocal_rank:.6f}",
-                    "recall": f"{result.recall:.6f}",
-                    "limit": report.limit,
-                    "dataset": report.dataset,
-                    "data_dir": report.data_dir,
-                    "model": report.model,
-                }
-            )
-    finally:
-        if path:
-            output.close()
+    rows = (
+        {
+            "id": result.id,
+            "query": result.query,
+            "expected_paths": ";".join(result.expected_paths),
+            "returned_paths": ";".join(result.returned_paths),
+            "hit": result.hit,
+            "reciprocal_rank": f"{result.reciprocal_rank:.6f}",
+            "recall": f"{result.recall:.6f}",
+            "limit": report.limit,
+            "dataset": report.dataset,
+            "data_dir": report.data_dir,
+            "model": report.model,
+        }
+        for result in report.results
+    )
+    write_csv_rows(fieldnames=fieldnames, rows=rows, path=path)
 
 
 def default_csv_results_path(report: SearchEvalReport, results_dir: Path) -> Path:
     """Build a timestamped CSV path for an eval report."""
-    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    model = _safe_filename_part(report.model)
-    return results_dir / f"search_{timestamp}_{model}.csv"
+    return core_default_csv_results_path(
+        prefix="search",
+        model=report.model,
+        results_dir=results_dir,
+    )
 
-
-def _safe_filename_part(value: str) -> str:
-    """Return a filesystem-friendly filename segment."""
-    cleaned = re.sub(r"[^A-Za-z0-9_.-]+", "-", value.strip()).strip("-._")
-    return cleaned or "unknown"
 
 
 def latest_search_dataset() -> Path:
     """Return the newest versioned synthetic search dataset path."""
-    versioned_datasets: list[tuple[int, Path]] = []
-    for path in SEARCH_DATASETS_DIR.glob("search_synthetic_v*.json"):
-        match = re.fullmatch(r"search_synthetic_v(\d+)\.json", path.name)
-        if match:
-            versioned_datasets.append((int(match.group(1)), path))
-
-    if versioned_datasets:
-        return max(versioned_datasets)[1]
-
-    return SEARCH_DATASETS_DIR / "search_synthetic_v1.json"
+    return latest_versioned_dataset(
+        datasets_dir=SEARCH_DATASETS_DIR,
+        versioned_prefix="search_synthetic_v",
+        fallback_name="search_synthetic_v1.json",
+    )
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Evaluate challenge markdown search.")
     parser.add_argument(
         "--dataset",
@@ -308,44 +315,12 @@ def parse_args() -> argparse.Namespace:
         default=5,
         help="Number of search results to score per query.",
     )
-    output_group = parser.add_mutually_exclusive_group()
-    output_group.add_argument(
-        "--json",
-        action="store_true",
-        help="Print the full report as JSON.",
-    )
-    output_group.add_argument(
-        "--csv",
-        action="store_true",
-        help="Print one CSV row per eval case.",
-    )
-    parser.add_argument(
-        "--csv-output",
-        type=Path,
-        default=None,
-        help="Write CSV output to this file instead of the default results path.",
-    )
-    parser.add_argument(
-        "--results-dir",
-        type=Path,
-        default=Path("evals/search/results"),
-        help="Directory for timestamped CSV result files.",
-    )
-    parser.add_argument(
-        "--no-save-results",
-        action="store_true",
-        help="Do not save a timestamped CSV result file.",
-    )
-    parser.add_argument(
-        "--no-progress",
-        action="store_true",
-        help="Do not print per-case progress to stderr.",
-    )
-    return parser.parse_args()
+    add_common_output_args(parser, default_results_dir=Path("evals/search/results"))
+    return parser.parse_args(argv)
 
 
-def main() -> None:
-    args = parse_args()
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
     report = run_eval(
         dataset_path=args.dataset,
         data_dir=args.data_dir,
@@ -353,24 +328,16 @@ def main() -> None:
         limit=max(1, args.limit),
         progress=not args.no_progress,
     )
-    saved_results_path = None
-    if args.csv_output:
-        args.csv_output.parent.mkdir(parents=True, exist_ok=True)
-        write_csv_report(report, args.csv_output)
-        saved_results_path = args.csv_output
-    elif not args.no_save_results:
-        saved_results_path = default_csv_results_path(report, args.results_dir)
-        saved_results_path.parent.mkdir(parents=True, exist_ok=True)
-        write_csv_report(report, saved_results_path)
-
-    if args.csv:
-        write_csv_report(report)
-    elif args.json:
-        print(json.dumps(report_to_json(report), indent=2))
-    else:
-        print_text_report(report)
-        if saved_results_path:
-            print(f"\nSaved CSV results: {saved_results_path}")
+    emit_report(
+        report,
+        output_config_from_args(args),
+        output_prefix="search",
+        model_name=report.model,
+        print_text_report=print_text_report,
+        report_to_json=report_to_json,
+        write_csv_report=write_csv_report,
+        summary_to_json=report_to_summary_json,
+    )
 
 
 if __name__ == "__main__":
