@@ -215,6 +215,24 @@ def report_to_json(report: SearchEvalReport) -> dict[str, Any]:
     return dataclass_report_to_json(report)
 
 
+def report_to_summary_json(report: SearchEvalReport) -> dict[str, Any]:
+    """Build the compact JSON summary saved for every search eval run."""
+    hits = sum(result.hit for result in report.results)
+    return {
+        "eval": "search",
+        "dataset": report.dataset,
+        "data_dir": report.data_dir,
+        "model": report.model,
+        "limit": report.limit,
+        "case_count": report.case_count,
+        "passed": hits,
+        "failed": report.case_count - hits,
+        "hit_rate": report.hit_rate,
+        "mean_reciprocal_rank": report.mean_reciprocal_rank,
+        "mean_recall": report.mean_recall,
+    }
+
+
 def write_csv_report(report: SearchEvalReport, path: Path | None = None) -> None:
     """Write one CSV row per eval case."""
     fieldnames = [
@@ -318,6 +336,7 @@ def main(argv: list[str] | None = None) -> None:
         print_text_report=print_text_report,
         report_to_json=report_to_json,
         write_csv_report=write_csv_report,
+        summary_to_json=report_to_summary_json,
     )
 
 

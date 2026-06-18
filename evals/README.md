@@ -5,7 +5,7 @@ Each eval type has its own folder:
 - `evals/search/` evaluates markdown search quality.
 - `evals/tool_call/` evaluates built-in tool execution and validation.
 
-Both evals support text, JSON, and CSV output. By default, each eval run prints per-case progress to stderr and saves a timestamped CSV result file under that eval's `results/` folder. The filename includes the eval name, run datetime, and model/search backend name.
+Both evals support text, JSON, and CSV output. By default, each eval run prints per-case progress to stderr and saves a timestamped CSV result file plus a compact JSON summary file under that eval's `results/` folder. Filenames include the eval name, run datetime, and model/search backend name; summary files add `_summary.json`.
 
 Shared mechanics live under `evals/core/` so new evals do not need to copy/paste dataset loading, latest-version discovery, progress reporting, CSV writing, result-path generation, or common output CLI flags.
 
@@ -49,7 +49,7 @@ Print CSV output:
 uv run python evals/search/eval.py --csv
 ```
 
-Write CSV output to a specific file:
+Write CSV output to a specific file. A compact JSON summary is also written next to it with `_summary.json` appended to the CSV stem:
 
 ```bash
 uv run python evals/search/eval.py --csv-output evals/search/results/search_smoke.csv
@@ -65,6 +65,7 @@ Default saved result filenames look like:
 
 ```text
 evals/search/results/search_20260615T143012Z_duckdb-fts.csv
+evals/search/results/search_20260615T143012Z_duckdb-fts_summary.json
 ```
 
 Search dataset format:
@@ -86,6 +87,8 @@ Reported metrics:
 - `hit_rate`: fraction of queries with at least one expected file in the top results.
 - `mean_reciprocal_rank`: rewards expected files appearing higher in the result list.
 - `mean_recall`: fraction of expected files returned per query.
+
+The compact JSON summary includes: `eval`, `dataset`, `data_dir`, `model`, `limit`, `case_count`, `passed`, `failed`, `hit_rate`, `mean_reciprocal_rank`, and `mean_recall`.
 
 ---
 
@@ -115,7 +118,7 @@ Print CSV output:
 uv run python evals/tool_call/eval.py --csv
 ```
 
-Write CSV output to a specific file:
+Write CSV output to a specific file. A compact JSON summary is also written next to it with `_summary.json` appended to the CSV stem:
 
 ```bash
 uv run python evals/tool_call/eval.py --csv-output evals/tool_call/results/tool_call_smoke.csv
@@ -131,6 +134,7 @@ Default saved result filenames look like:
 
 ```text
 evals/tool_call/results/tool_call_20260615T143012Z_gemma4-latest.csv
+evals/tool_call/results/tool_call_20260615T143012Z_gemma4-latest_summary.json
 ```
 
 Tool-call dataset format:
@@ -149,6 +153,8 @@ Tool-call dataset format:
 Reported metric:
 
 - `pass_rate`: fraction of agent cases where the expected tool calls appear and the final answer contains the expected text.
+
+The compact JSON summary includes: `eval`, `dataset`, `provider`, `model`, `case_count`, `passed`, `failed`, and `pass_rate`.
 
 ---
 

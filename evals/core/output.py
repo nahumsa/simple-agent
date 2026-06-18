@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import json
 import re
 import sys
 from collections.abc import Iterable, Mapping
@@ -32,6 +33,17 @@ def dataclass_report_to_json(report: object) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise TypeError("dataclass report must convert to a dictionary")
     return value
+
+
+def json_summary_path_for_csv_results(csv_path: Path) -> Path:
+    """Return the compact JSON summary path next to a CSV result path."""
+    return csv_path.with_name(f"{csv_path.stem}_summary.json")
+
+
+def write_json_summary(summary: Mapping[str, object], path: Path) -> None:
+    """Write a compact JSON summary to disk."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
 
 
 def write_csv_rows(

@@ -349,6 +349,21 @@ def report_to_json(report: AgentToolCallEvalReport) -> dict[str, Any]:
     return dataclass_report_to_json(report)
 
 
+def report_to_summary_json(report: AgentToolCallEvalReport) -> dict[str, Any]:
+    """Build the compact JSON summary saved for every tool-call eval run."""
+    passed = sum(result.passed for result in report.results)
+    return {
+        "eval": "tool_call",
+        "dataset": report.dataset,
+        "provider": report.provider,
+        "model": report.model,
+        "case_count": report.case_count,
+        "passed": passed,
+        "failed": report.case_count - passed,
+        "pass_rate": report.pass_rate,
+    }
+
+
 def write_csv_report(
     report: AgentToolCallEvalReport, path: Path | None = None
 ) -> None:
@@ -500,6 +515,7 @@ def main(argv: list[str] | None = None) -> None:
         print_text_report=print_text_report,
         report_to_json=report_to_json,
         write_csv_report=write_csv_report,
+        summary_to_json=report_to_summary_json,
     )
 
 

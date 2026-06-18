@@ -2,9 +2,20 @@ import csv
 import re
 from pathlib import Path
 
+from evals.core.cli import CommonOutputConfig, emit_report
 from evals.core.datasets import latest_versioned_dataset, load_json_list
-from evals.core.output import safe_filename_part, write_csv_rows
-from evals.search.eval import load_dataset as load_search_dataset
+from evals.core.output import (
+    json_summary_path_for_csv_results,
+    safe_filename_part,
+    write_csv_rows,
+)
+from evals.search.eval import (
+    SearchEvalReport,
+    SearchEvalResult,
+    load_dataset as load_search_dataset,
+    report_to_summary_json as search_report_to_summary_json,
+    write_csv_report as write_search_csv_report,
+)
 from evals.tool_call.eval import load_dataset as load_tool_call_dataset
 
 
@@ -65,6 +76,12 @@ def test_write_csv_rows_writes_headers_and_rows(tmp_path) -> None:
     assert rows == [{"id": "case-1", "items": "a;b"}]
 
 
+def test_json_summary_path_sits_next_to_csv_result() -> None:
+    path = json_summary_path_for_csv_results(Path("results/search_123_model.csv"))
+
+    assert path == Path("results/search_123_model_summary.json")
+
+
 def test_search_dataset_accepts_single_expected_path(tmp_path) -> None:
     dataset = tmp_path / "search.json"
     dataset.write_text(
@@ -98,7 +115,7 @@ def test_tool_call_dataset_accepts_string_shorthand_fields(tmp_path) -> None:
 
 
 def test_default_search_result_filename_shape() -> None:
-    from evals.search.eval import SearchEvalReport, default_csv_results_path
+    from evals.search.eval import default_csv_results_path
 
     report = SearchEvalReport(
         dataset="dataset.json",
@@ -118,3 +135,90 @@ def test_default_search_result_filename_shape() -> None:
         r"results/search_\d{8}T\d{6}Z_duckdb-fts\.csv",
         path.as_posix(),
     )
+
+
+def test_search_report_to_summary_json_is_compact() -> None:
+    report = SearchEvalReport(
+        dataset="dataset.json",
+        data_dir="data",
+        model="duckdb-fts",
+        limit=5,
+        case_count=2,
+        hit_rate=0.5,
+        mean_reciprocal_rank=0.5,
+        mean_recall=0.25,
+        results=[
+            SearchEvalResult(
+                id="hit",
+                query="wc",
+                expected_paths=["001.md"],
+                returned_paths=["001.md"],
+                hit=True,
+                reciprocal_rank=1.0,
+                recall=1.0,
+            ),
+            SearchEvalResult(
+                id="miss",
+                query="json",
+                expected_paths=["002.md"],
+                returned_paths=[],
+                hit=False,
+                reciprocal_rank=0.0,
+                recall=0.0,
+            ),
+        ],
+    )
+
+    assert search_report_to_summary_json(report) == {
+        "eval": "search",
+        "dataset": "dataset.json",
+        "data_dir": "data",
+        "model": "duckdb-fts",
+        "limit": 5,
+        "case_count": 2,
+        "passed": 1,
+        "failed": 1,
+        "hit_rate": 0.5,
+        "mean_reciprocal_rank": 0.5,
+        "mean_recall": 0.25,
+    }
+
+
+def test_emit_report_saves_default_compact_json_summary(tmp_path, capsys) -> None:
+    report = SearchEvalReport(
+        dataset="dataset.json",
+        data_dir="data",
+        model="duckdb-fts",
+        limit=5,
+        case_count=0,
+        hit_rate=0.0,
+        mean_reciprocal_rank=0.0,
+        mean_recall=0.0,
+        results=[],
+    )
+    config = CommonOutputConfig(
+        json=False,
+        csv=False,
+        csv_output=None,
+        results_dir=tmp_path,
+        no_save_results=False,
+        no_progress=False,
+    )
+
+    saved_csv = emit_report(
+        report,
+        config,
+        output_prefix="search",
+        model_name=report.model,
+        print_text_report=lambda _: None,
+        report_to_json=lambda _: {},
+        write_csv_report=write_search_csv_report,
+        summary_to_json=search_report_to_summary_json,
+    )
+
+    assert saved_csv is not None
+    summary_path = json_summary_path_for_csv_results(saved_csv)
+    assert saved_csv.exists()
+    assert summary_path.exists()
+    assert '"eval": "search"' in summary_path.read_text(encoding="utf-8")
+    assert "Saved JSON summary:" in capsys.readouterr().out
